@@ -6,17 +6,16 @@ import java.io.File
 import scala.xml._
 
 object EclipseBuilderPlugin extends Plugin {
-    // configuration points, like the built in `version`, `libraryDependencies`, or `compile`
-    // by implementing Plugin, these are automatically imported in a user's `build.sbt`
-    //val newTask = TaskKey[Unit]("new-task")
-    //val newSetting = SettingKey[String]("new-setting")
 
-    // a group of settings ready to be added to a Project
-    // to automatically add them, do 
+    // Settings to be included in projects that uses this plugin.
     val newSettings = Seq(
         unmanagedJars in Compile <++= baseDirectory map { dir => scanClassPath(dir) }
     )
 
+    /*
+    *   Scans the .classpath file, and finds the JarRepository.
+    *   Prefixes the entries in the classpath file with the absolute path of JarRepository
+    */
     def scanClassPath(basedir: File) = {
         val classpathFile = basedir / ".classpath"
         println("Eclipe classpath file = "+classpathFile.getAbsolutePath)
@@ -36,6 +35,9 @@ object EclipseBuilderPlugin extends Plugin {
         jars
     }
 
+    /*
+    *   finds a directory with a specified name..
+    */
     def find(name: String, currentDir: File) : Array[File] = {
         println("Searching for "+name+ " in "+currentDir.getAbsolutePath)
         if(currentDir.isDirectory) {
