@@ -8,7 +8,7 @@ import scala.xml._
 object EclipseBuilderPlugin extends Plugin {
 
     // Settings to be included in projects that uses this plugin.
-    val newSettings = Seq(
+    val newSettings = Seq(sbtassembly.Plugin.assemblySettings: _*,
         unmanagedJars in Compile <++= baseDirectory map { dir => scanClassPath(dir) }
     )
 
@@ -31,7 +31,7 @@ object EclipseBuilderPlugin extends Plugin {
 
         val xml = XML.loadFile(classpathFile)
         val jars = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "lib").map(e => Attributed.blank(new File(jarRepository, (e \\ "@path").text )))
-        println("jars = "+jars)
+        println("jars = "+jars.mkString(", "))
         jars
     }
 
@@ -44,8 +44,13 @@ object EclipseBuilderPlugin extends Plugin {
             val found = currentDir.listFiles.filter(f => f.getName == name)
             if(found.size > 0)
                 return found
-            println("parent = "+currentDir.getParentFile)
+            
         }
-        return find(name, new File(currentDir.getParent))
+        return find(name, new File(getParentDirectory(currentDir.getAbsolutePath)))
+    }
+
+    def getParentDirectory(dir: String) = {
+        val tmp = if(dir.endsWith(""+File.separatorChar)) dir.substring(0, dir.size-1) else dir
+        tmp.substring(0, tmp.lastIndexOf(File.separatorChar))
     }
 }
