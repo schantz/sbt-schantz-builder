@@ -8,7 +8,7 @@ import scala.xml._
 object EclipseBuilderPlugin extends Plugin {
 
     // Settings to be included in projects that uses this plugin.
-    val newSettings = Seq(sbtassembly.Plugin.assemblySettings: _*,
+    val newSettings = Seq(
         unmanagedJars in Compile <++= baseDirectory map { dir => scanClassPath(dir) }
     )
 
