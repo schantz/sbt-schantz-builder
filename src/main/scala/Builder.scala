@@ -1,4 +1,4 @@
-package dk.mymessages
+package com.schantz
 
 import java.util.Date
 import sbt._
@@ -9,10 +9,11 @@ import scala.xml._
 object EclipseBuilderPlugin extends Plugin {
 
     
+    val classpathFileName = ".classpath"
     // Settings to be included in projects that uses this plugin.
-    val newSettings = Seq(
-        unmanagedSourceDirectories in Compile <<=  baseDirectory { base => findSourceDirectories(base /".classpath", base) },
-        unmanagedSourceDirectories in Test <<=  baseDirectory { base => findTestSourceDirectories(base /".classpath", base) },
+    lazy val newSettings = Seq(
+        unmanagedSourceDirectories in Compile <<=  baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
+        unmanagedSourceDirectories in Test <<=  baseDirectory { base => findTestSourceDirectories(base / classpathFileName, base) },
         unmanagedJars in Compile <++= baseDirectory map { dir => scanClassPath(dir) }
     )
 
@@ -21,7 +22,7 @@ object EclipseBuilderPlugin extends Plugin {
     *   Prefixes the entries in the classpath file with the absolute path of JarRepository
     */
     def scanClassPath(basedir: File) = {
-        val classpathFile = basedir / ".classpath"
+        val classpathFile = basedir / classpathFileName
         debug("Eclipe classpath file = "+classpathFile.getAbsolutePath)
         val jarRepos = System.getProperty("JarRepository")
         
