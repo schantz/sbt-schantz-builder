@@ -6,6 +6,7 @@ import Keys._
 import java.io.File
 import scala.xml._
 
+
 object EclipseBuilderPlugin extends Plugin {
 
     
@@ -59,19 +60,69 @@ object EclipseBuilderPlugin extends Plugin {
         sourceDirs
     }
 
-    /*
+
+     /*
+    *   Scans the .classpath file, and finds the project dependencies
+    */
+    def findProjects(classpathFile: File, basedir: File) = {
+        val xml = XML.loadFile(classpathFile)
+        val sourceDirs = (xml \\ "classpathentry").filter(e => {
+            val pathText = (e \\ "@path").text
+            (e \\ "@kind").text == "src" && (pathText != "" &&  pathText.startsWith("/") && !pathText.endsWith(".jar")) 
+            }).map(e => {
+                val searchText = (e \\ "@path").text.replaceFirst("/", "")
+                println("Trying to find: "+searchText)
+                find(searchText, basedir) 
+                })
+        debug("Project dependencies: "+sourceDirs.mkString("\n\t"))
+        sourceDirs
+    }
+
+    def dependedProjects(basedir: File) = {
+        val projects = findProjects(new File(basedir, classpathFileName), basedir).map(p => ClasspathDependency(RootProject(p.first), None))
+        debug("Project dependencies: "+projects)
+        projects
+    }
+
+   /*
     *   finds a directory with a specified name..
     */
-    def find(name: String, currentDir: File) : Array[File] = {
-        debug("Searching for "+name+ " in "+currentDir.getAbsolutePath)
-        if(currentDir.isDirectory) {
-            val found = currentDir.listFiles.filter(f => f.getName == name)
-            if(found.size > 0)
-                return found
-            
+    def find(name: String, currentDir: File) : Option[File] = {
+        var parentPath = new File(getParentDirectory(currentDir.getAbsolutePath))        
+        var notFound = true
+        while(parentPath.getAbsolutePath != "/") {
+            debug("Searching: "+parentPath.getAbsolutePath)
+            val found = searchDown(parentPath, name)
+            if(found.size > 0) {
+                return Some(found.first)
+            }
+                
+
+            parentPath = new File(getParentDirectory(parentPath.getAbsolutePath))        
         }
-        return find(name, new File(getParentDirectory(currentDir.getAbsolutePath)))
+        None
     }
+
+    def searchDown(aStartingDir: File, name: String): List[File] = {
+        var result = List[File]()
+        val filesAndDirs = aStartingDir.listFiles()
+    
+        for(file <- filesAndDirs) {
+            if(file.getName == ".project") {
+                val projectName = (XML.loadFile(file) \\ "projectDescription" \ "name").text
+                if(projectName == name)
+                    result = new File(getParentDirectory(file.getAbsolutePath)) :: result
+            }
+
+            if (file.isDirectory() ) {
+                val deeperList = searchDown(file, name)
+                result = deeperList ::: result
+            }
+        }
+        return result;
+    }
+
+    
 
     def getParentDirectory(dir: String) = {
         val tmp = if(dir.endsWith(""+File.separatorChar)) dir.substring(0, dir.size-1) else dir
