@@ -1,12 +1,11 @@
-package com.schantz.sbt
+package com.schantz.sbt.plugins
 
 import sbt._
 import java.util.ArrayList
 import Keys._
 import org.testng._
 
-// TODO https://bitbucket.org/jmhofer/sbt-testng-interface/wiki/Home
-object RunTestSuitesPlugin extends Plugin {
+object TestSuitesPlugin extends Plugin {
   lazy val runTestSuites = TaskKey[Unit]("run-test-suites", "runs TestNG test suites")
   lazy val testSuites = SettingKey[Seq[String]]("test-suites", "list of test suites to run")
 
@@ -16,7 +15,7 @@ object RunTestSuitesPlugin extends Plugin {
   }
   implicit def listToJavaList[T](l: Seq[T]) = new JavaListWrapper(l)
 
-  def runTestSuitesTask = runTestSuites <<= (target, streams, testSuites) map {
+  private def runTestSuitesTask = runTestSuites <<= (target, streams, testSuites) map {
     (targetDirectory, taskStream, suites) =>
       import taskStream.log
       log.info("running test suites: " + suites)
@@ -30,7 +29,7 @@ object RunTestSuitesPlugin extends Plugin {
   }
 
   def testSuiteSettings = {
-    inConfig(Test)(Seq(
+    inConfig(Compile)(Seq(
       runTestSuitesTask,
       testSuites := Seq("testsuites/mysuite.xml"),
       libraryDependencies += "org.testng" % "testng" % "5.14"))

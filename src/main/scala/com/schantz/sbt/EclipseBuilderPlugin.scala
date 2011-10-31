@@ -4,11 +4,13 @@ import java.util.Date
 import sbt._
 import Keys._
 import java.io.File
+import scala.util.matching.Regex
 import scala.xml._
 
 object EclipseBuilderPlugin extends Plugin {
 
   val classpathFileName = ".classpath"
+
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = Seq(
     unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
