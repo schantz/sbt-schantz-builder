@@ -5,6 +5,7 @@ import java.util.Date
 import Keys._
 import java.io.File
 import scala.xml._
+import com.schantz.sbt.PluginKeys._
 
 trait SchantzBuild extends Build {
   override def projectDefinitions(baseDirectory: File) = {
@@ -12,7 +13,7 @@ trait SchantzBuild extends Build {
     val xmlFile = new File(baseDirectory, ".project")
     val projectName = (XML.loadFile(xmlFile) \\ "projectDescription" \ "name").text
     val projectDependencies = EclipseBuilderPlugin.dependedProjects(baseDirectory)
-    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings 
+    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings ++ Seq(projectDependencyList := projectDependencies)
     // TODO add dependency key to 
 
     Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (projectDependencies: _*))

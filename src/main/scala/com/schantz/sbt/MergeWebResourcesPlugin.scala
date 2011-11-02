@@ -21,8 +21,8 @@ object MergeWebResourcesPlugin extends Plugin {
         packageTasks(packageWar, prepareWebappImpl))
   }
 
-  private def prepareWebappImpl: Initialize[Task[Seq[(File, String)]]] = (prepareWebapp, target, excludeFilter, streams, excludeJarsFromWar) map {
-    (pw, target, filter, out, jarsToRemove) =>
+  private def prepareWebappImpl: Initialize[Task[Seq[(File, String)]]] = (prepareWebapp, target, excludeFilter, streams, excludeJarsFromWar, projectDependencyList) map {
+    (pw, target, filter, out, jarsToRemove, dependencies) =>
       {
         val warPath = target / "webapp"
         val warLibPath = warPath / "WEB-INF/lib"
@@ -30,9 +30,12 @@ object MergeWebResourcesPlugin extends Plugin {
         out.log.info("Excluding jars from war: " + jarsToRemove)
         jarsToRemove.foreach(jar => IO.delete(warLibPath / jar))
         // copy web resources from other projects
-        // TODO scan project dependencies for webresources to copy
-        val adviceWebResources = new java.io.File("""/Users/Lars/projects/work/sbt-spike/Advice/AdviceWeb/src/main/resources/webresources""")
-        safeCopy(adviceWebResources, warPath / "WEB-INF/classes/webresources")
+        // TODO use project dependencies when its fixed
+        val deps = Seq(new java.io.File("""/Users/Lars/projects/work/sbt-spike/Advice/AdviceWeb"""), new java.io.File("""/Users/Lars/projects/work/sbt-spike/Core/FoundationWeb_2/"""))
+        deps.foreach(dir => {
+          val webResource = dir / "src/main/resources/webresources"
+          safeCopy(webResource, warPath / "WEB-INF/classes/webresources")
+        })
 
         (warPath).descendentsExcept("*", filter) x (relativeTo(warPath) | flat)
       }

@@ -15,11 +15,10 @@ object EclipseBuilderPlugin extends Plugin {
   lazy val newSettings = {
     Seq(
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
-      unmanagedSourceDirectories in (if (isTestPackaged()) { Compile } else { Test }) <++= baseDirectory {
+      unmanagedSourceDirectories in (if (packageTestSourcesInCompile()) { Compile } else { Test }) <++= baseDirectory {
         base => findTestSourceDirectories(base / classpathFileName, base)
       },
       unmanagedJars in Compile <++= baseDirectory map { base => scanClassPath(base) },
-
       mappings in (Compile, packageBin) ~= filterClassesFromPackage)
   }
 
@@ -28,10 +27,12 @@ object EclipseBuilderPlugin extends Plugin {
    * 
    * fx. "javax/servlet/Servlet.class"
    */
-  def filterClassesFromPackage(ms: Seq[(File, String)]) = {
-    ms filter {
-      case (file, toPath) =>
+  def filterClassesFromPackage(mappings: Seq[(File, String)]) = {
+    mappings filter {
+      case (file, toPath) => {
+        // TODO
         toPath != "javax/servlet/Servlet.class"
+      }
     }
   }
 

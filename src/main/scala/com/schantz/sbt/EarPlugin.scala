@@ -5,19 +5,21 @@ import Keys._
 import com.schantz.sbt.PluginKeys._
 
 object EarPlugin extends Plugin {
-  private def packageEarTask = packageEar <<= (target, streams, earName) map { (targetDir, out, name) =>
+  private def packageEarTask = packageEar <<= (baseDirectory, target, streams, earName, scalaVersion, moduleName, version) map { (base, targetDir, out, name, scala, module, ver) =>
+    // TODO more robust way of getting war file name and allow for multiple war's
     var earFile = targetDir / name
+    var warFile = targetDir / ("scala-" + scala + "/" + module + "_" + scala + "-" + ver + ".war")
+    var metaInf = base / "src/application" 
+    
+    out.log.info("creating ear file: " + earFile.getPath() + " using war file " + warFile.getPath() + " and META-INF " + metaInf.getPath())
     IO.delete(earFile)
-    out.log.info("creating ear file: " + earFile.getPath())
-    // TODO fetch name of all war files files
-    IO.zip(Seq(), earFile)
+    IO.zip(Seq((warFile, warFile.getName()), (metaInf, "META-INF")), earFile)
   }
 
   def earSettings = {
     inConfig(Compile)(Seq(
       packageEarTask,
-      // TODO name is not the correct artifact name
-      earName := name + ".ear"))
+      earName <<= (moduleName, version) { (m, v) => m + "-" + v + ".ear" }))
   }
 }
 

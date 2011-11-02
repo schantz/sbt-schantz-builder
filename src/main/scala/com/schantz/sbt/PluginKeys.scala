@@ -11,12 +11,13 @@ object PluginKeys {
 
   lazy val runTestSuites = TaskKey[Unit]("run-test-suites", "runs TestNG test suites")
   lazy val testSuites = SettingKey[Seq[String]]("test-suites", "list of test suites to run")
-
   lazy val packageTest = SettingKey[Boolean]("package-test", "if true then test sources are packaged in jar")
+  
   lazy val excludeClasses = SettingKey[Seq[String]]("exclude-classes", "classes used for compile but not packaged")
+  lazy val projectDependencyList = SettingKey[Seq[sbt.ClasspathDependency]]("project-dependency-list")
   
   // TODO figure out a way to do this nicely
-  def isTestPackaged() = {
+  def packageTestSourcesInCompile() = {
     var isPackaged = false
     packageTest { p => isPackaged = p }
     isPackaged
