@@ -1,15 +1,13 @@
-package com.schantz.sbt.plugins
+package com.schantz.sbt
 
 import sbt._
 import java.util.ArrayList
 import Keys._
 import org.testng._
+import com.schantz.sbt.PluginKeys._
 
 object TestSuitesPlugin extends Plugin {
-  lazy val runTestSuites = TaskKey[Unit]("run-test-suites", "runs TestNG test suites")
-  lazy val testSuites = SettingKey[Seq[String]]("test-suites", "list of test suites to run")
-
-  // TODO move this tooling to a super class
+  // TODO move this implicit to a util class
   class JavaListWrapper[T](val seq: Seq[T]) {
     def toJavaList = seq.foldLeft(new java.util.ArrayList[T](seq.size)) { (al, e) => al.add(e); al }
   }
@@ -31,7 +29,6 @@ object TestSuitesPlugin extends Plugin {
   def testSuiteSettings = {
     inConfig(Compile)(Seq(
       runTestSuitesTask,
-      testSuites := Seq("testsuites/mysuite.xml"),
-      libraryDependencies += "org.testng" % "testng" % "5.14"))
+      testSuites := Seq("testsuites/mysuite.xml")))
   }
 }

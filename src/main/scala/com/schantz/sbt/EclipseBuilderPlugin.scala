@@ -6,22 +6,39 @@ import Keys._
 import java.io.File
 import scala.util.matching.Regex
 import scala.xml._
+import com.schantz.sbt.PluginKeys._
 
 object EclipseBuilderPlugin extends Plugin {
-
   val classpathFileName = ".classpath"
 
   // Settings to be included in projects that uses this plugin.
-  lazy val newSettings = Seq(
-    unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
-    // TODO we add test sources to compile due to unfortunate runtime dependencies on test sources!
-    // TODO perhaps make this configurable
-    unmanagedSourceDirectories in Compile <++= baseDirectory { base => findTestSourceDirectories(base / classpathFileName, base) },
-    unmanagedJars in Compile <++= baseDirectory map { dir => scanClassPath(dir) })
+  lazy val newSettings = {
+    Seq(
+      unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
+      unmanagedSourceDirectories in (if (isTestPackaged()) { Compile } else { Test }) <++= baseDirectory {
+        base => findTestSourceDirectories(base / classpathFileName, base)
+      },
+      unmanagedJars in Compile <++= baseDirectory map { base => scanClassPath(base) },
+
+      mappings in (Compile, packageBin) ~= filterClassesFromPackage)
+  }
+
+  /**
+   * Excludes classes from being packaged
+   * 
+   * fx. "javax/servlet/Servlet.class"
+   */
+  def filterClassesFromPackage(ms: Seq[(File, String)]) = {
+    ms filter {
+      case (file, toPath) =>
+        toPath != "javax/servlet/Servlet.class"
+    }
+  }
 
   /*
     *   Scans the .classpath file, and finds the JarRepository.
-    *   Prefixes the entries in the classpath file with the absolute path of JarRepository
+    *   Prefixes the entries in the classpath file with the absolute 
+    *   path of JarRepository
     */
   def scanClassPath(basedir: File) = {
     val classpathFile = basedir / classpathFileName
