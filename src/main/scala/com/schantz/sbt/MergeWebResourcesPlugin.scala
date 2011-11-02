@@ -30,7 +30,7 @@ object MergeWebResourcesPlugin extends Plugin {
         out.log.info("Excluding jars from war: " + jarsToRemove)
         jarsToRemove.foreach(jar => IO.delete(warLibPath / jar))
         // copy web resources from other projects
-        // TODO use project dependencies when its fixed
+        // TODO hard coded copying to figure out why style sheet looks wrong, use project dependencies when its fixed
         val deps = Seq(new java.io.File("""/Users/Lars/projects/work/sbt-spike/Advice/AdviceWeb"""), new java.io.File("""/Users/Lars/projects/work/sbt-spike/Core/FoundationWeb_2/"""))
         deps.foreach(dir => {
           val webResource = dir / "src/main/resources/webresources"
