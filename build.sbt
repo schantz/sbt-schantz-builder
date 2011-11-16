@@ -6,7 +6,7 @@ organization := "com.schantz"
 
 version := "0.1-SNAPSHOT"
 
-sbtVersion := "0.11.0"
+sbtVersion := "0.11.1"
 
 scalaVersion := "2.9.1"
 

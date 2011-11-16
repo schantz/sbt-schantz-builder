@@ -12,11 +12,10 @@ trait SchantzBuild extends Build {
     println("Project definitaions: " + baseDirectory.getAbsolutePath)
     val xmlFile = new File(baseDirectory, ".project")
     val projectName = (XML.loadFile(xmlFile) \\ "projectDescription" \ "name").text
-    val projectDependencies = EclipseBuilderPlugin.dependedProjects(baseDirectory)
-    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings ++ Seq(projectDependencyList := projectDependencies)
-    // TODO add dependency key to 
+    val dependencyList = EclipseBuilderPlugin.dependedProjects(baseDirectory)
+    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings 
 
-    Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (projectDependencies: _*))
+    Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (dependencyList: _*))
   }
 
   def mySettings = {

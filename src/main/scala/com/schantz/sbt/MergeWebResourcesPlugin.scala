@@ -12,17 +12,19 @@ import com.schantz.sbt.PluginKeys._
 
 object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
-    inConfig(Compile)(unmanagedResourceDirectories in Compile <+= (baseDirectory)(_ / "src/test/resources")) ++
+    // TODO this should be a setting the web apps specifies
+    inConfig(Compile)(unmanagedResourceDirectories in Compile <+= (baseDirectory)(_ / "test_resources")) ++
       // configure web app
       com.github.siasia.WarPlugin.warSettings ++
-      inConfig(Compile)(webappResources in Compile <+= (sourceDirectory in Runtime)(sd => sd / "src/main/webapp")) ++
+      // TODO make this configurable
+      inConfig(Compile)(webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war")) ++
       // make sure our prepare webapp custom task runs before the package war task
       inConfig(Compile)(Seq(prepareWebapp <<= com.github.siasia.WarPlugin.packageWarTask) ++
         packageTasks(packageWar, prepareWebappImpl))
   }
 
-  private def prepareWebappImpl: Initialize[Task[Seq[(File, String)]]] = (prepareWebapp, target, excludeFilter, streams, excludeJarsFromWar, projectDependencyList) map {
-    (pw, target, filter, out, jarsToRemove, dependencies) =>
+  private def prepareWebappImpl: Initialize[Task[Seq[(File, String)]]] = (prepareWebapp, target, excludeFilter, streams, excludeJarsFromWar) map {
+    (pw, target, filter, out, jarsToRemove) =>
       {
         val warPath = target / "webapp"
         val warLibPath = warPath / "WEB-INF/lib"
@@ -30,10 +32,11 @@ object MergeWebResourcesPlugin extends Plugin {
         out.log.info("Excluding jars from war: " + jarsToRemove)
         jarsToRemove.foreach(jar => IO.delete(warLibPath / jar))
         // copy web resources from other projects
+        // TODO make web-resource dir configurable
         // TODO hard coded copying to figure out why style sheet looks wrong, use project dependencies when its fixed
-        val deps = Seq(new java.io.File("""/Users/Lars/projects/work/sbt-spike/Advice/AdviceWeb"""), new java.io.File("""/Users/Lars/projects/work/sbt-spike/Core/FoundationWeb_2/"""))
+        val deps = Seq(new java.io.File("""/Users/Lars/projects/work/advise/Advice/AdviceWeb/resources"""), new java.io.File("""/Users/Lars/projects/work/advise/Core/FoundationWeb_2/WebContent"""))
         deps.foreach(dir => {
-          val webResource = dir / "src/main/resources/webresources"
+          val webResource = dir / "webresources"
           safeCopy(webResource, warPath / "WEB-INF/classes/webresources")
         })
 

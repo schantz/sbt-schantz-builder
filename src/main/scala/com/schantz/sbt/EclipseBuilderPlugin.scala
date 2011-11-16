@@ -14,6 +14,7 @@ object EclipseBuilderPlugin extends Plugin {
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = {
     Seq(
+      unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base / classpathFileName, base) },
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
       unmanagedSourceDirectories in (if (packageTestSourcesInCompile()) { Compile } else { Test }) <++= baseDirectory {
         base => findTestSourceDirectories(base / classpathFileName, base)
@@ -69,6 +70,12 @@ object EclipseBuilderPlugin extends Plugin {
     debug("Source directories: " + sourceDirs.mkString("\n\t"))
     sourceDirs
   }
+
+  def findResourceDirectories(classpathFile: File, basedir: File) = {
+    val sourceDirs = findSourceDirectories(classpathFile, basedir)
+    sourceDirs.filter(_.getAbsolutePath().matches(".*resources"))
+  }
+
   /*
     *   Scans the .classpath file, and finds the test source directories
     */
@@ -97,6 +104,7 @@ object EclipseBuilderPlugin extends Plugin {
   }
 
   def dependedProjects(basedir: File) = {
+    // add % "test->test" to allow for project inter dependencies during test
     val projects = findProjects(new File(basedir, classpathFileName), basedir).map(p => ClasspathDependency(RootProject(p.first), None))
     debug("Project dependencies: " + projects)
     projects
