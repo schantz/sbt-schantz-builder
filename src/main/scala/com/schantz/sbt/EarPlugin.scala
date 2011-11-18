@@ -5,10 +5,6 @@ import Keys._
 import com.schantz.sbt.PluginKeys._
 
 object EarPlugin extends Plugin {
-  def doStuff() = {
-    
-  }
-  
   private def packageEarTask = packageEar <<= (baseDirectory, target, streams, earName, scalaVersion, moduleName, version, state) map {
     (base, targetDir, out, name, scala, module, ver, state) =>
       val bd = file(Project.extract(state).structure.root.toURL.getFile)
@@ -17,7 +13,6 @@ object EarPlugin extends Plugin {
           mod.configurations
         }
       }
-      //Project.evaluateTask()
       println("=====================" + bd.getAbsoluteFile());
       
       // TODO find a more robust way of getting war file name (fx using artifact) 

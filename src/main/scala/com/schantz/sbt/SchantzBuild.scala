@@ -13,14 +13,13 @@ trait SchantzBuild extends Build {
     val xmlFile = new File(baseDirectory, ".project")
     val projectName = (XML.loadFile(xmlFile) \\ "projectDescription" \ "name").text
     val dependencyList = EclipseBuilderPlugin.dependedProjects(baseDirectory)
-    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings 
+    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings ++ ReleasePlugin.releaseSettings
 
     Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (dependencyList: _*))
   }
 
   def mySettings = {
-    Defaults.defaultSettings ++ Seq(version := "1.0",
-      exportJars := true)
+    Defaults.defaultSettings ++ Seq(exportJars := true)
   }
 
   def javacOptions = Keys.javacOptions

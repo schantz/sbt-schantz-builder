@@ -14,6 +14,7 @@ object EclipseBuilderPlugin extends Plugin {
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = {
     Seq(
+      version <<= (baseDirectory) { (base) => findVersionNumber(base) },
       unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base) },
       // source directories
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
@@ -73,13 +74,42 @@ object EclipseBuilderPlugin extends Plugin {
   }
 
   /**
+   * Scan base directory for version info
+   */
+  def findVersionNumber(basedir: File): String = {
+    import scala.io._
+    val versionFiles = Seq((basedir / "resources/build.version"), (basedir / "src/main/resources/build.version")).filter(_.exists())
+
+    var majorVersion = "1."
+    var minorVersion = "0"
+
+    versionFiles.foreach { file =>
+      debug("Scanning version file: " + file.getAbsoluteFile())
+      val versionInfo = Source.fromFile(file).getLines
+      val minorNumberRegex = """build.number=(.*)""".r
+      val majorNumberRegex = """major.version=.*-(.*)""".r
+
+      for (line <- versionInfo) {
+        line match {
+          case minorNumberRegex(minor) => minorVersion = minor
+          case majorNumberRegex(major) => majorVersion = major
+          case _ => ()
+        }
+      }
+    }
+    val versionNumber = majorVersion + minorVersion
+    debug("Setting version: " + versionNumber + " for " + basedir.getAbsolutePath())
+    versionNumber
+  }
+
+  /**
    * Scans base directory for resource folders
    */
   def findResourceDirectories(basedir: File) = {
-    var resourceFilter: File => Boolean = content => { 
-      if(!content.isDirectory())
+    var resourceFilter: File => Boolean = content => {
+      if (!content.isDirectory())
         false
-      var path = content.getAbsolutePath() 
+      var path = content.getAbsolutePath()
       path.matches(".*resources") || path.matches(".*WebContent")
     }
     basedir.listFiles().filter(resourceFilter)
