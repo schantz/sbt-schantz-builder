@@ -32,7 +32,7 @@ object EclipseBuilderPlugin extends Plugin {
   def filterClassesFromPackage(mappings: Seq[(File, String)]) = {
     mappings filter {
       case (file, toPath) => {
-        // TODO
+        // TODO try testing with something in foundation and see if its removed, if it is then add key
         toPath != "javax/servlet/Servlet.class"
       }
     }
