@@ -14,7 +14,8 @@ object EclipseBuilderPlugin extends Plugin {
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = {
     Seq(
-      unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base / classpathFileName, base) },
+      unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base) },
+      // source directories
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
       unmanagedSourceDirectories in (if (packageTestSourcesInCompile()) { Compile } else { Test }) <++= baseDirectory {
         base => findTestSourceDirectories(base / classpathFileName, base)
@@ -25,7 +26,7 @@ object EclipseBuilderPlugin extends Plugin {
 
   /**
    * Excludes classes from being packaged
-   * 
+   *
    * fx. "javax/servlet/Servlet.class"
    */
   def filterClassesFromPackage(mappings: Seq[(File, String)]) = {
@@ -71,9 +72,17 @@ object EclipseBuilderPlugin extends Plugin {
     sourceDirs
   }
 
-  def findResourceDirectories(classpathFile: File, basedir: File) = {
-    val sourceDirs = findSourceDirectories(classpathFile, basedir)
-    sourceDirs.filter(_.getAbsolutePath().matches(".*resources"))
+  /**
+   * Scans base directory for resource folders
+   */
+  def findResourceDirectories(basedir: File) = {
+    var resourceFilter: File => Boolean = content => { 
+      if(!content.isDirectory())
+        false
+      var path = content.getAbsolutePath() 
+      path.matches(".*resources") || path.matches(".*WebContent")
+    }
+    basedir.listFiles().filter(resourceFilter)
   }
 
   /*
