@@ -9,11 +9,12 @@ import Project.Initialize
 
 object ReleasePlugin extends Plugin {
   def releaseSettings = {
-    Seq(releaseTask)
+    Seq(releaseInfoTask)
   }
 
   // retrieve source control info for each dependent project
-  private def releaseTask = release <<= {
+  private def releaseInfoTask = releaseInfo <<= {
+    // TODO also get version info
     // ref points to current project, so define a function that given a ref executes a command on it 
     val getBaseDirectory: ProjectRef => Initialize[Option[File]] = ref => (baseDirectory in ref).?
     val baseDirectoryForDependencies = Defaults.forDependencies(getBaseDirectory)
@@ -30,12 +31,12 @@ object ReleasePlugin extends Plugin {
           // TODO extract branch name correctly
           var branchName = "trunk"
 
-          Seq((projectName, " Branch:" + branchName.trim, " Type:SVN", repoUrl.trim))
+          Seq((projectName, " Branch:" + branchName.trim, " Type:SVN", " URL:" + repoUrl.trim))
         } else {
           val repoUrl = Process("hg" :: "showconfig" :: "paths.default" :: Nil, dir) !!
           val branchName = Process("hg" :: "branch" :: Nil, dir) !!
 
-          Seq((projectName, " Branch:" + branchName.trim, " Type:HG", repoUrl.trim))
+          Seq((projectName, " Branch:" + branchName.trim, " Type:HG", " URL:" + repoUrl.trim))
         }
       }
       sourceDirs.foreach(println)

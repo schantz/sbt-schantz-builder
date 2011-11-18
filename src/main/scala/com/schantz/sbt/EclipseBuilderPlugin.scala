@@ -14,7 +14,9 @@ object EclipseBuilderPlugin extends Plugin {
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = {
     Seq(
+      // version and artifact name
       version <<= (baseDirectory) { (base) => findVersionNumber(base) },
+      // resources
       unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base) },
       // source directories
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
@@ -22,10 +24,11 @@ object EclipseBuilderPlugin extends Plugin {
         base => findTestSourceDirectories(base / classpathFileName, base)
       },
       unmanagedJars in Compile <++= baseDirectory map { base => scanClassPath(base) },
+      // classes to exclude
       mappings in (Compile, packageBin) ~= filterClassesFromPackage)
   }
 
-  /**
+  /*
    * Excludes classes from being packaged
    *
    * fx. "javax/servlet/Servlet.class"
@@ -73,7 +76,7 @@ object EclipseBuilderPlugin extends Plugin {
     sourceDirs
   }
 
-  /**
+  /* 
    * Scan base directory for version info
    */
   def findVersionNumber(basedir: File): String = {

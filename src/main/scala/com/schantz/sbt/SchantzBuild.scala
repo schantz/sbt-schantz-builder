@@ -8,6 +8,7 @@ import scala.xml._
 import com.schantz.sbt.PluginKeys._
 
 trait SchantzBuild extends Build {
+
   override def projectDefinitions(baseDirectory: File) = {
     println("Project definitaions: " + baseDirectory.getAbsolutePath)
     val xmlFile = new File(baseDirectory, ".project")
@@ -19,7 +20,10 @@ trait SchantzBuild extends Build {
   }
 
   def mySettings = {
-    Defaults.defaultSettings ++ Seq(exportJars := true)
+    Defaults.defaultSettings ++ Seq(exportJars := true,
+      artifactName := { (config: String, module: ModuleID, artifact: Artifact) =>
+        artifact.name + "." + artifact.extension
+      })
   }
 
   def javacOptions = Keys.javacOptions

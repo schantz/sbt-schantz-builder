@@ -18,8 +18,10 @@ object MergeWebResourcesPlugin extends Plugin {
       // TODO make this configurable
       inConfig(Compile)(webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war")) ++
       // make sure our prepare webapp custom task runs before the package war task
-      inConfig(Compile)(Seq(warPrepare <<= com.github.siasia.WarPlugin.packageWarTask) ++
+      inConfig(Compile)(Seq(
+        warPrepare <<= com.github.siasia.WarPlugin.packageWarTask) ++
         packageTasks(packageWar, warPrepareTask))
+
   }
 
   private def warPrepareTask: Initialize[Task[Seq[(File, String)]]] = (warPrepare, target, excludeFilter,
