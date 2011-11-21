@@ -21,8 +21,8 @@ trait SchantzBuild extends Build {
 
   def mySettings = {
     Defaults.defaultSettings ++ Seq(exportJars := true,
-      artifactName := { (config: String, module: ModuleID, artifact: Artifact) =>
-        artifact.name + "." + artifact.extension
+      artifactName <<= (name in Compile) { projectName =>
+        (config: String, module: ModuleID, artifact: Artifact) => projectName + "." + artifact.extension
       })
   }
 
