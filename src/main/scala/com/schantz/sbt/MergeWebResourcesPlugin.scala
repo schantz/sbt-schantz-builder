@@ -35,7 +35,7 @@ object MergeWebResourcesPlugin extends Plugin {
           val warLibPath = warPath / "WEB-INF/lib"
 
           // remove excluded jar's
-          out.log.info("Excluding jars from war: " + excludedJars)
+          out.log.info("User excluded jars from war: " + excludedJars)
           excludedJars.foreach(jar => IO.delete(warLibPath / jar))
 
           // remove duplicate jar's
@@ -65,7 +65,7 @@ object MergeWebResourcesPlugin extends Plugin {
 
           // copy web resources from other projects
           webResources.foreach(dir => {
-            safeCopy(dir, warPath / "WEB-INF/classes/webresources")
+            safeCopy(dir, warPath / "WEB-INF/classes")
           })
 
           (warPath).descendentsExcept("*", filter) x (relativeTo(warPath) | flat)
@@ -80,7 +80,8 @@ object MergeWebResourcesPlugin extends Plugin {
     resourceDirectoriesForDependencies map { resourceSeq =>
       val dirs = resourceSeq.flatten
       // paths are reversed as so we return then in the order they appear in the classpath
-      dirs.filter(dir => (dir / "webresources").exists()).map(dir => dir / "webresources")
+      //dirs.filter(dir => (dir / "webresources").exists()).map(dir => dir / "webresources")
+      dirs.filter(dir => dir.exists()).reverse
     }
   }
 
