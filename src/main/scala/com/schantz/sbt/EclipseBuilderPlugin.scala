@@ -20,9 +20,9 @@ object EclipseBuilderPlugin extends Plugin {
       unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base) },
       // source directories
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
-      unmanagedSourceDirectories in (if (packageTestSourcesInCompile()) { Compile } else { Test }) <++= baseDirectory {
-        base => findTestSourceDirectories(base / classpathFileName, base)
-      },
+      // we must add test sources to compile as we have cross project test dependencies
+      unmanagedSourceDirectories in Compile <++= baseDirectory { base => findTestSourceDirectories(base / classpathFileName, base) },
+      // dependencies
       unmanagedJars in Compile <++= baseDirectory map { base => scanClassPath(base) },
       // classes to exclude
       mappings in (Compile, packageBin) ~= filterClassesFromPackage)

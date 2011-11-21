@@ -12,7 +12,10 @@ import com.schantz.sbt.PluginKeys._
 
 object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
+    // custom tasks
     warResourceDirectoriesTask ++
+    // defaults
+    inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
       // configure web app
       com.github.siasia.WarPlugin.warSettings ++
       // TODO make this configurable
@@ -55,7 +58,7 @@ object MergeWebResourcesPlugin extends Plugin {
     resourceDirectoriesForDependencies map { resourceSeq =>
       val dirs = resourceSeq.flatten
       // paths are reversed as so we return then in the order they appear in the classpath
-      dirs.filter(dir => (dir / "webresources").exists()).map(dir => dir / "webresources").reverse
+      dirs.filter(dir => (dir / "webresources").exists()).map(dir => dir / "webresources")
     }
   }
 
