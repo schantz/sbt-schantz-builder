@@ -35,29 +35,11 @@ object MergeWebResourcesPlugin extends Plugin {
           val warLibPath = warPath / "WEB-INF/lib"
 
           // remove excluded jar's
-          out.log.info("User excluded jars from war: " + excludedJars)
+          out.log.info("Removing user excluded jars from war: " + excludedJars)
           excludedJars.foreach(jar => IO.delete(warLibPath / jar))
 
           // remove duplicate jar's
-          var versionizeJar: (File => (String, String, File)) = jar => {
-            val jarRegex = """(.*?)(?:-(?=\d)(.*))?.jar""".r
-            val jarRegex(name, version) = jar.getName
-            (name, version, jar)
-          }
-          var allJars = fullClasspath.flatMap { jar => if (jar.data.isFile()) Seq(versionizeJar(jar.data)) else Seq() }
-          var warJars = warLibPath.listFiles().filter(_.isFile()).map { jar => versionizeJar(jar) }
-          allJars.foreach { jarEntry =>
-            var found = (warLibPath / jarEntry._3.getName()).isFile()
-            if (found) {
-              // if jar is found in war then check if other versions exists and delete them
-              warJars.foreach { warEntry =>
-                if (jarEntry._1 == warEntry._1 && jarEntry._2 != warEntry._2) {
-                  out.log.warn("Excluding duplicate jar from war: " + warEntry._3.getAbsolutePath())
-                  IO.delete(warEntry._3)
-                }
-              }
-            }
-          }
+          removeDuplicateJarsFromWar(fullClasspath, warLibPath, out)
 
           // remove unwanted meta-inf content
           out.log.info("Excluding content from meta-inf: " + excludedMetainfResources)
@@ -79,9 +61,30 @@ object MergeWebResourcesPlugin extends Plugin {
 
     resourceDirectoriesForDependencies map { resourceSeq =>
       val dirs = resourceSeq.flatten
-      // paths are reversed as so we return then in the order they appear in the classpath
-      //dirs.filter(dir => (dir / "webresources").exists()).map(dir => dir / "webresources")
+      // in dependencies traverse the projects in opposite order of the class-path so we must reverse result
       dirs.filter(dir => dir.exists()).reverse
+    }
+  }
+
+  private def removeDuplicateJarsFromWar(fullClasspath: Classpath, warLibPath: File, out: TaskStreams) = {
+    var versionizeJar: (File => (String, String, File)) = jar => {
+      val jarRegex = """(.*?)(?:-(?=\d)(.*))?.jar""".r
+      val jarRegex(name, version) = jar.getName
+      (name, version, jar)
+    }
+    var allJars = fullClasspath.flatMap { jar => if (jar.data.isFile()) Seq(versionizeJar(jar.data)) else Seq() }
+    var warJars = warLibPath.listFiles().filter(_.isFile()).map { jar => versionizeJar(jar) }
+    allJars.foreach { jarEntry =>
+      var found = (warLibPath / jarEntry._3.getName()).isFile()
+      if (found) {
+        // if jar is found in war then check if other versions exists and delete them
+        warJars.foreach { warEntry =>
+          if (jarEntry._1 == warEntry._1 && jarEntry._2 != warEntry._2) {
+            out.log.warn("Excluding duplicate jar from war: " + warEntry._3.getAbsolutePath())
+            IO.delete(warEntry._3)
+          }
+        }
+      }
     }
   }
 
