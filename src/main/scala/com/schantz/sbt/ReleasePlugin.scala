@@ -15,6 +15,7 @@ object ReleasePlugin extends Plugin {
   // retrieve source control info for each dependent project
   private def releaseInfoTask = releaseInfo <<= {
     // TODO also get version info
+    
     // ref points to current project, so define a function that given a ref executes a command on it 
     val getBaseDirectory: ProjectRef => Initialize[Option[File]] = ref => (baseDirectory in ref).?
     val baseDirectoryForDependencies = Defaults.forDependencies(getBaseDirectory)
