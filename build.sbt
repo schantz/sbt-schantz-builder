@@ -18,4 +18,4 @@ libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin"
 libraryDependencies += "org.testng" % "testng" % "5.14"
 
 //publishMavenStyle := true
-//publishTo := Some(Resolver.file("Local", Path.userHome / "projects" /  "maven2" asFile)(Patterns(true, Resolver.mavenStyleBasePattern)))
+publishTo := Some(Resolver.file("file",  new File( "repo/public" )) )
