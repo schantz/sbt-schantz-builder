@@ -17,4 +17,15 @@ libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin"
 
 libraryDependencies += "org.testng" % "testng" % "5.14"
 
-publishTo := Some( Resolver.file("file",  new File( "repo/public/schantz-builder" ))( Patterns("[scalaVersion]/[artifact].[ext]")) )
+// publish only binary code
+//publishArtifact in (Compile, packageDoc) := false
+
+//publishArtifact in (Compile, packageSrc) := false 
+
+//publishArtifact in (Compile, packageBin) := true
+
+//publishArtifact in (Test, packageSrc) := false 
+
+publishMavenStyle := false
+
+publishTo := Some( Resolver.file("file",  new File( "repo/public/schantz-builder" ))( Patterns("[scalaVersion]/[artifact](-[classifier]).[ext]")) )
