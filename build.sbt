@@ -4,7 +4,7 @@ name := "schantz-builder"
 
 organization := "com.schantz"
 
-version := "0.1-SNAPSHOT"
+version := "1.0-SNAPSHOT"
 
 sbtVersion := "0.11.1"
 
