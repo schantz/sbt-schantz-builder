@@ -51,7 +51,7 @@ object MergeWebResourcesPlugin extends Plugin {
     resourceDirectoriesForDependencies map { resourceSeq =>
       val dirs = resourceSeq.flatten
       // in dependencies traverse the projects in opposite order of the class-path so we must reverse result
-      dirs.filter(dir => dir.exists()).reverse
+      dirs.filter(dir => (dir / "webresources").exists()).reverse
     }
   }
 
