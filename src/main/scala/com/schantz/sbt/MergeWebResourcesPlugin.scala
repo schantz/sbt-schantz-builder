@@ -12,13 +12,12 @@ import com.schantz.sbt.PluginKeys._
 
 object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
-    // add and configure custom tasks
     warResourceDirectoriesTask ++
-    // 
+    // default excludes
     inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
       // configure web app
       warSettings ++ Seq(
-      warPostProcess in Compile <<= (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) map {
+      warPostProcess in Compile <<= (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath in Compile) map {
         (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) => { 
           () =>
           val warPath = target / "webapp"
