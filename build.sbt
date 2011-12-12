@@ -8,14 +8,14 @@ version := "1.0-SNAPSHOT"
 
 isSnapshot := true
 
-sbtVersion := "0.11.1"
+sbtVersion := "0.11.2"
 
 scalaVersion := "2.9.1"
 
 // we use functionality from the SBT web plugin
 resolvers += "Web plugin repo" at "http://siasia.github.com/maven2"    
 
-libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin" % (v+"-0.2.8"))
+libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin" % (v+"-0.2.10"))
 
 libraryDependencies += "org.testng" % "testng" % "5.14" 
 

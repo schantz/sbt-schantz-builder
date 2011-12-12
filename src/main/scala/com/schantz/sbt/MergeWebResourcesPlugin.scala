@@ -12,49 +12,39 @@ import com.schantz.sbt.PluginKeys._
 
 object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
-    // custom tasks
+    // add and configure custom tasks
     warResourceDirectoriesTask ++
-      // defaults
-      inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
+    // 
+    inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
       // configure web app
-      com.github.siasia.WarPlugin.warSettings ++
-      // TODO make this configurable
-      inConfig(Compile)(webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war")) ++
-      // make sure our prepare webapp custom task runs before the package war task
-      inConfig(Compile)(Seq(
-        warPrepare <<= com.github.siasia.WarPlugin.packageWarTask) ++
-        packageTasks(packageWar, warPrepareTask))
-
-  }
-
-  private def warPrepareTask: Initialize[Task[Seq[(File, String)]]] = (warPrepare, target, excludeFilter,
-    streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) map {
-      (warPrep, target, filter, out, excludedJars, excludedMetainfResources, webResources, fullClasspath) =>
-        {
+      warSettings ++ Seq(
+      warPostProcess in Compile <<= (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) map {
+        (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) => { 
+          () =>
           val warPath = target / "webapp"
           val warLibPath = warPath / "WEB-INF/lib"
 
           // remove excluded jar's
-          out.log.info("Removing user excluded jars from war: " + excludedJars)
-          excludedJars.foreach(jar => IO.delete(warLibPath / jar))
+          streams.log.info("Removing user excluded jars from war: " + warExcludedJars)
+          warExcludedJars.foreach(jar => IO.delete(warLibPath / jar))
 
           // remove duplicate jar's
-          removeDuplicateJarsFromWar(fullClasspath, warLibPath, out)
+          removeDuplicateJarsFromWar(unmanagedClasspath, warLibPath, streams)
 
           // remove unwanted meta-inf content
-          out.log.info("Excluding content from meta-inf: " + excludedMetainfResources)
-          excludedMetainfResources.foreach(content => IO.delete(warPath / "META-INF" / content))
+          streams.log.info("Excluding content from meta-inf: " + warExcludedMetaInfResources)
+          warExcludedMetaInfResources.foreach(content => IO.delete(warPath / "META-INF" / content))
 
           // copy web resources from other projects
-          webResources.foreach(dir => {
+          warResourceDirectories.foreach(dir => {
             safeCopy(dir, warPath / "WEB-INF/classes")
           })
-
-          (warPath).descendentsExcept("*", filter) x (relativeTo(warPath) | flat)
         }
-    }
+      },
+      webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war"))
+  }
 
-  // retrieve the web resource directories value in each dependent project
+  // retrieve the web resource directories for all dependent project
   private def warResourceDirectoriesTask = warResourceDirectories <<= {
     val key: SettingKey[Seq[File]] = resourceDirectories in Compile
     val resourceDirectoriesForDependencies = Defaults.inDependencies(key, _ => Nil)
@@ -67,29 +57,34 @@ object MergeWebResourcesPlugin extends Plugin {
   }
 
   private def removeDuplicateJarsFromWar(fullClasspath: Classpath, warLibPath: File, out: TaskStreams) = {
-    var versionizeJar: (File => (String, String, File)) = jar => {
+    class JarVersionInfo(val name: String, val version : String, val jarFile : File);
+    var extractVersionFromJar: (File => JarVersionInfo) = jar => {
       val jarRegex = """(.*?)(?:-(?=\d)(.*))?.jar""".r
       val jarRegex(name, version) = jar.getName
-      (name, version, jar)
+      new JarVersionInfo(name, version, jar)
     }
-    var allJars = fullClasspath.flatMap { jar => if (jar.data.isFile()) Seq(versionizeJar(jar.data)) else Seq() }
-    var warJars = warLibPath.listFiles().filter(_.isFile()).map { jar => versionizeJar(jar) }
+    
+    var allJars = fullClasspath.flatMap { jar => if (jar.data.isFile()) Seq(extractVersionFromJar(jar.data)) else Seq() }
+    var warJars = warLibPath.listFiles().filter(_.isFile()).map { jar => extractVersionFromJar(jar) }
+    // all jar's contains the entire class path correctly ordered by dependent projects
     allJars.foreach { jarEntry =>
-      var found = (warLibPath / jarEntry._3.getName()).isFile()
+      var found = (warLibPath / jarEntry.jarFile.getName()).isFile()
       if (found) {
-        // if jar is found in war then check if other versions exists and delete them
+         // if a jar from the complete class path is in the war then search and delete other versions in the war file
         warJars.foreach { warEntry =>
-          if (jarEntry._1 == warEntry._1 && jarEntry._2 != warEntry._2) {
-            out.log.warn("Excluding duplicate jar from war: " + warEntry._3.getAbsolutePath())
-            IO.delete(warEntry._3)
+          if (jarEntry.name == warEntry.name && jarEntry.version != warEntry.version) {
+            out.log.warn("Excluding duplicate jar from war: " + warEntry.jarFile.getAbsolutePath())
+            IO.delete(warEntry.jarFile)
           }
         }
       }
     }
   }
 
+  // recursively copies files from source to destination, without overwriting any existing files
   private def safeCopy(sourceDir: File, destDir: File) = {
     val extractRelativePath = (sourceDir.getAbsolutePath() + "(.*)").r
+    
     val filesToCopy = recursiveListFiles(sourceDir) flatMap { file =>
       val extractRelativePath(relativePath) = file.getAbsolutePath()
       val targetPath = destDir / relativePath
@@ -99,6 +94,7 @@ object MergeWebResourcesPlugin extends Plugin {
         Seq((file, targetPath))
       }
     }
+    
     IO.copy(filesToCopy)
   }
 
@@ -106,5 +102,4 @@ object MergeWebResourcesPlugin extends Plugin {
     val these = f.listFiles
     these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
   }
-
 }
