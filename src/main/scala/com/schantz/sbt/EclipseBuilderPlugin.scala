@@ -113,7 +113,7 @@ object EclipseBuilderPlugin extends Plugin {
       if (!content.isDirectory())
         false
       var path = content.getAbsolutePath()
-      path.matches(""".*\resources""") || path.matches(""".*WebContent""")
+      (path.matches(".*/resources") || path.matches(""".*WebContent"""))
     }
     basedir.listFiles().filter(resourceFilter)
   }
