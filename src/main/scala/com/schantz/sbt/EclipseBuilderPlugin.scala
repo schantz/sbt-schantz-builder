@@ -13,15 +13,20 @@ object EclipseBuilderPlugin extends Plugin {
 
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = {
+    //var base: sbt.SettingKey[java.io.File] = baseDirectory
+    //val myApply: java.io.File => sbt.Project.Initialize[Seq[java.io.File]] = baseDirectory.apply
+    
     Seq(
       // version and artifact name
       version <<= (baseDirectory) { (base) => findVersionNumber(base) },
       // resources
       unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base) },
+     
       // source directories
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
       // we must add test sources to compile as we have cross project test dependencies
       unmanagedSourceDirectories in Compile <++= baseDirectory { base => findTestSourceDirectories(base / classpathFileName, base) },
+      
       // dependencies
       unmanagedJars in Compile <++= baseDirectory map { base => scanClassPath(base) },
       // classes to exclude
@@ -50,9 +55,8 @@ object EclipseBuilderPlugin extends Plugin {
   def scanClassPath(basedir: File) = {
     val classpathFile = basedir / classpathFileName
     debug("Eclipe classpath file = " + classpathFile.getAbsolutePath)
-    val jarRepos = System.getProperty("JarRepository")
 
-    if (jarRepos == null) {
+    if (System.getProperty("JarRepository") == null) {
       val jarRepository = find("JarRepository", basedir).first.getParentFile.getAbsolutePath
       System.setProperty("JarRepository", jarRepository)
     } else {
@@ -61,7 +65,16 @@ object EclipseBuilderPlugin extends Plugin {
     val jarRepository = System.getProperty("JarRepository")
 
     val xml = XML.loadFile(classpathFile)
-    val jars = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "lib").map(e => Attributed.blank(new File(jarRepository, (e \\ "@path").text)))
+    val jars = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "lib").map{ e => 
+      val path = (e \\ "@path").text;
+      if(path.matches("/.*")) {
+        println("---------- using repo jar for " + path + " with jar repo " + jarRepository)
+    	  Attributed.blank(new File(jarRepository, path))
+      } else {
+        println("---------- using local jar for " + path + " and basedir " + basedir + " with jar repo " + jarRepository)
+    	  Attributed.blank(basedir / path)
+      }
+    }
     debug("jars = " + jars.mkString(", "))
     jars
   }
