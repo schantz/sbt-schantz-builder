@@ -68,10 +68,8 @@ object EclipseBuilderPlugin extends Plugin {
     val jars = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "lib").map{ e => 
       val path = (e \\ "@path").text;
       if(path.matches("/.*")) {
-        println("---------- using repo jar for " + path + " with jar repo " + jarRepository)
     	  Attributed.blank(new File(jarRepository, path))
       } else {
-        println("---------- using local jar for " + path + " and basedir " + basedir + " with jar repo " + jarRepository)
     	  Attributed.blank(basedir / path)
       }
     }
