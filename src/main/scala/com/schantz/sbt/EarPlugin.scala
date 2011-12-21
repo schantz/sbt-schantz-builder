@@ -5,16 +5,8 @@ import Keys._
 import com.schantz.sbt.PluginKeys._
 
 object EarPlugin extends Plugin {
-  private def packageEarTask = packageEar <<= (baseDirectory, target, streams, earName, name, version, scalaVersion, state) map {
+  private def packageEarTask = (baseDirectory, target, streams, earName, name, version, scalaVersion, state) map {
     (base, targetDir, out, earName, name, version, scalaVersion, state) =>
-      val bd = file(Project.extract(state).structure.root.toURL.getFile)
-      projectDependencies map { dep =>
-        dep.map { mod =>
-          mod.configurations
-        }
-      }
-
-      // TODO make this task depend on package war
       // TODO find a more robust way of getting war file name (fx using artifact) 
       var earFile = targetDir / earName
       var warFile = targetDir / ("scala-" + scalaVersion + "/" + name + "-" + version + ".war")
@@ -31,9 +23,8 @@ object EarPlugin extends Plugin {
   }
 
   def earSettings = {
-    inConfig(Compile)(Seq(
-      packageEarTask,
-      earName <<= (moduleName) { (module) => module + ".ear" }))
+    Seq(packageEar := packageEarTask dependsOn(compile))
+    inConfig(Compile)(Seq(earName <<= (moduleName) { (module) => module + ".ear" }))
   }
 }
 
