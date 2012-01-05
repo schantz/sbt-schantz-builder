@@ -53,7 +53,7 @@ object EclipseBuilderPlugin extends Plugin {
     *   path of JarRepository
     */
   def scanClassPath(basedir: File) = {
-    println("======== TTTTTTTTTTTTTTEEEEEEEEEESSSSSSSSSSTTTTTTTTTTTT ======")
+    println("<<<<<<<<<< GIIIIIIIIIIGGGGGGGGGAAAAAAAAA >>>>>>>>>")
     val classpathFile = basedir / classpathFileName
     debug("Eclipe classpath file = " + classpathFile.getAbsolutePath)
 
