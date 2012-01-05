@@ -1,13 +1,11 @@
 <classpath>
   <classpathentry output=".target/scala-2.9.1/sbt-0.11.2/classes" path="src/main/scala" kind="src"></classpathentry>
-  <classpathentry path="/Users/Lars/.ivy2/cache/com.github.siasia/xsbt-web-plugin_2.9.1/jars/xsbt-web-plugin_2.9.1-0.11.2-0.2.10.jar" sourcepath="/Users/Lars/.ivy2/cache/com.github.siasia/xsbt-web-plugin_2.9.1/srcs/xsbt-web-plugin_2.9.1-0.11.2-0.2.10-sources.jar" kind="lib"></classpathentry>
-  <classpathentry path="/Users/Lars/.ivy2/cache/com.github.siasia/plugin-commons_2.9.1/jars/plugin-commons_2.9.1-0.11.2-0.1.jar" sourcepath="/Users/Lars/.ivy2/cache/com.github.siasia/plugin-commons_2.9.1/srcs/plugin-commons_2.9.1-0.11.2-0.1-sources.jar" kind="lib"></classpathentry>
-  <classpathentry path="/Users/Lars/.ivy2/cache/org.testng/testng/jars/testng-5.14.jar" sourcepath="/Users/Lars/.ivy2/cache/org.testng/testng/srcs/testng-5.14-sources.jar" kind="lib"></classpathentry>
-  <classpathentry path="/Users/Lars/.ivy2/cache/junit/junit/jars/junit-3.8.1.jar" sourcepath="/Users/Lars/.ivy2/cache/junit/junit/srcs/junit-3.8.1-sources.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/Lars/.ivy2/cache/org.testng/testng/jars/testng-5.14.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/Lars/.ivy2/cache/junit/junit/jars/junit-3.8.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.beanshell/bsh/jars/bsh-2.0b4.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/com.google.inject/guice/jars/guice-2.0.jar" kind="lib"></classpathentry>
-  <classpathentry path="/Users/Lars/.ivy2/cache/aopalliance/aopalliance/jars/aopalliance-1.0.jar" sourcepath="/Users/Lars/.ivy2/cache/aopalliance/aopalliance/srcs/aopalliance-1.0-sources.jar" kind="lib"></classpathentry>
-  <classpathentry path="/Users/Lars/.ivy2/cache/com.beust/jcommander/jars/jcommander-1.5.jar" sourcepath="/Users/Lars/.ivy2/cache/com.beust/jcommander/srcs/jcommander-1.5-sources.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/Lars/.ivy2/cache/aopalliance/aopalliance/jars/aopalliance-1.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/Lars/.ivy2/cache/com.beust/jcommander/jars/jcommander-1.5.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.scala-tools.sbt/sbt_2.9.1/jars/sbt_2.9.1-0.11.2.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.scala-tools.sbt/main_2.9.1/jars/main_2.9.1-0.11.2.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.scala-tools.sbt/actions_2.9.1/jars/actions_2.9.1-0.11.2.jar" kind="lib"></classpathentry>
