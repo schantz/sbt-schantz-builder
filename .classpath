@@ -1,5 +1,11 @@
 <classpath>
-  <classpathentry output=".target/scala-2.9.1/sbt-0.11.2/classes" path="src/main/scala" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.9.1/sbt-0.11.1/classes" path="src/main/scala" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.9.1/sbt-0.11.1/classes" path="src/main/java" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.9.1/sbt-0.11.1/test-classes" path="src/test/scala" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.9.1/sbt-0.11.1/test-classes" path="src/test/java" kind="src"></classpathentry>
+  <classpathentry path="/Users/Lars/.ivy2/cache/com.github.siasia/xsbt-web-plugin_2.9.1/jars/xsbt-web-plugin_2.9.1-0.11.1-0.2.10.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/Lars/.ivy2/cache/com.github.siasia/plugin-commons_2.9.1/jars/plugin-commons_2.9.1-0.11.1-0.1.jar" kind="lib"></classpathentry>
+  <classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.testng/testng/jars/testng-5.14.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/junit/junit/jars/junit-3.8.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.beanshell/bsh/jars/bsh-2.0b4.jar" kind="lib"></classpathentry>
@@ -44,7 +50,6 @@
   <classpathentry path="/Users/Lars/.ivy2/cache/org.scala-tools.sbt/precompiled-2_8_1/jars/compiler-interface-bin-0.11.2.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.scala-tools.sbt/precompiled-2_8_0/jars/compiler-interface-bin-0.11.2.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/Lars/.ivy2/cache/org.scala-tools.sbt/precompiled-2_9_0/jars/compiler-interface-bin-0.11.2.jar" kind="lib"></classpathentry>
-  <classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"></classpathentry>
   <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"></classpathentry>
-  <classpathentry path=".target/scala-2.9.1/sbt-0.11.2/classes" kind="output"></classpathentry>
+  <classpathentry path="bin" kind="output"></classpathentry>
 </classpath>
