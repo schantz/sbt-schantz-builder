@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>schantz-builder</name>
+  <name>sbt-schantz-builder</name>
   <buildSpec>
     <buildCommand>
       <name>org.scala-ide.sdt.core.scalabuilder</name>
