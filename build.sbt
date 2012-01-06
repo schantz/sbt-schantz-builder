@@ -1,6 +1,6 @@
 sbtPlugin := true
 
-name := "schantz-builder"
+name := "sbt-schantz-builder"
 
 organization := "com.schantz"
 
@@ -18,5 +18,5 @@ libraryDependencies += "org.testng" % "testng" % "5.14"
 
 publishMavenStyle := false
 
-//publishTo := Some( Resolver.file("file",  new File( "repo/public/schantz-builder" ))( 
-//  Patterns(true,"[scalaVersion]/[artifact](-[classifier]).[ext]")) )
+publishTo := Some( Resolver.file("file",  new File( "repo/public/sbt-schantz-builder" ))( 
+  Patterns(true,"[scalaVersion]/[artifact](-[classifier]).[ext]")) )
