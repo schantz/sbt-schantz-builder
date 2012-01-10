@@ -14,7 +14,12 @@ trait SchantzBuild extends Build {
     val xmlFile = new File(baseDirectory, ".project")
     val projectName = (XML.loadFile(xmlFile) \\ "projectDescription" \ "name").text
     val dependencyList = EclipseBuilderPlugin.dependedProjects(baseDirectory)
-    var buildSettings = mySettings ++ EclipseBuilderPlugin.newSettings ++ TestSuitesPlugin.testSuiteSettings ++ EarPlugin.earSettings ++ ReleasePlugin.releaseSettings
+    var buildSettings = mySettings ++ 
+			EclipseBuilderPlugin.newSettings ++ 
+			TestSuitesPlugin.testSuiteSettings ++ 
+			EarPlugin.earSettings ++ 
+			ReleasePlugin.releaseSettings ++ 
+			CleanPlugin.cleanPluginSettings
 
     Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (dependencyList: _*))
   }

@@ -8,6 +8,8 @@ version := "1.0-SNAPSHOT"
 
 isSnapshot := true
 
+checksums in publish := Nil
+
 sbtVersion := "0.11.2"
 
 scalaVersion := "2.9.1"
