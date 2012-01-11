@@ -8,8 +8,6 @@ version := "1.0-SNAPSHOT"
 
 isSnapshot := true
 
-checksums in publish := Nil
-
 sbtVersion := "0.11.2"
 
 scalaVersion := "2.9.1"
@@ -18,7 +16,12 @@ libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin"
 
 libraryDependencies += "org.testng" % "testng" % "5.14" 
 
-publishMavenStyle := false
+publishMavenStyle := true
 
-publishTo := Some( Resolver.file("file",  new File( "repo/public/sbt-schantz-builder" ))( 
-  Patterns(true,"[scalaVersion]/[artifact](-[classifier]).[ext]")) )
+// disable publishing the main API jar
+publishArtifact in (Compile, packageDoc) := false
+
+// disable publishing the main sources jar
+publishArtifact in (Compile, packageSrc) := false
+
+publishTo := Some( Resolver.file("file",  new File( "repo/public/" ))(Resolver.mavenStylePatterns)) 
