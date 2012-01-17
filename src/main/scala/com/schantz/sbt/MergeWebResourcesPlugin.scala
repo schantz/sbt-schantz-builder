@@ -34,9 +34,23 @@ object MergeWebResourcesPlugin extends Plugin {
                 // remove unwanted meta-inf content
                 streams.log.info("Excluding content from meta-inf: " + warExcludedMetaInfResources)
                 warExcludedMetaInfResources.foreach(content => IO.delete(warPath / "META-INF" / content))
-
+                
+                // TODO stop doing this, as it leads to duplicated web resources
+                // merge content in web-inf content
+                (warPath / "WEB-INF").listFiles.foreach { file =>
+                  val name = file.getName()
+                  val suffix = ".sbt"
+                   if(name.endsWith(suffix)) {
+                     var replace = warPath / "WEB-INF" / name.substring(0, name.length - suffix.length)
+                     streams.log.info("renaming " + file.getAbsolutePath() + " into " + replace.getAbsolutePath())
+                     IO.copy( Seq((file, replace)) )
+                     IO.delete(file)    
+                   }
+                }
+               
                 // copy web resources from other projects
                 warResourceDirectories.foreach(dir => {
+                  streams.log.info("merging war resources from " + dir.getAbsolutePath())
                   safeCopy(dir, warPath / "WEB-INF/classes")
                 })
             }
@@ -81,12 +95,12 @@ object MergeWebResourcesPlugin extends Plugin {
     }
   }
 
-  // recursively copies files from source to destination, without overwriting any existing files
   private def safeCopy(sourceDir: File, destDir: File) = {
-    val extractRelativePath = (sourceDir.getAbsolutePath() + "(.*)").r
+    // needed to handle windows paths correctly http://stackoverflow.com/questions/8892960/quote-escape-path-for-use-in-regex/8893418#8893418
+    val extractRelativePath = ("""\Q""" + sourceDir.getAbsolutePath.replaceAll("\\\\E", "\\\\E\\\\\\\\E\\\\Q") + """\E(.*)""").r
 
     val filesToCopy = recursiveListFiles(sourceDir) flatMap { file =>
-      val extractRelativePath(relativePath) = file.getAbsolutePath()
+      val extractRelativePath(relativePath) = file.getAbsolutePath
       val targetPath = destDir / relativePath
       if (targetPath.exists) {
         Nil

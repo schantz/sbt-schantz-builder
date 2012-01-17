@@ -10,9 +10,6 @@ trait SchantzWebBuild extends SchantzBuild {
   def warExcludedMetaInfResources = PluginKeys.warExcludedMetaInfResources
 
   override def mySettings = {
-    super.mySettings ++ Seq(
-      artifactName := { (config: String, module: ModuleID, artifact: Artifact) =>
-        artifact.name + "-" + module.revision + "." + artifact.extension
-      }) ++ MergeWebResourcesPlugin.webSettings
+    super.mySettings ++ MergeWebResourcesPlugin.webSettings
   }
 }

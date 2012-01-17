@@ -20,7 +20,7 @@ object EclipseBuilderPlugin extends Plugin {
       // version and artifact name
       version <<= (baseDirectory) { (base) => findVersionNumber(base) },
       // resources
-      unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base) },
+      unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base / classpathFileName, base) },
      
       // source directories
       unmanagedSourceDirectories in Compile <<= baseDirectory { base => findSourceDirectories(base / classpathFileName, base) },
@@ -119,14 +119,12 @@ object EclipseBuilderPlugin extends Plugin {
   /**
    * Scans base directory for resource folders
    */
-  def findResourceDirectories(basedir: File) = {
-    var resourceFilter: File => Boolean = content => {
-      if (!content.isDirectory())
-        false
-      var path = content.getAbsolutePath()
-      (path.matches(".*/resources") || path.matches(""".*WebContent"""))
-    }
-    basedir.listFiles().filter(resourceFilter)
+  def findResourceDirectories(classpathFile: File, basedir: File) = {
+    val xml = XML.loadFile(classpathFile)
+    val exportedResources = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "lib" && (e \\ "@exported").text == "true").map(e => basedir / (e \\ "@path").text)
+    val resourceDirs = exportedResources.filter(r => r.isDirectory() && !r.getAbsolutePath().contains("test"))
+    debug("Resource directories: " + resourceDirs.mkString("\n\t"))
+    resourceDirs
   }
 
   /*

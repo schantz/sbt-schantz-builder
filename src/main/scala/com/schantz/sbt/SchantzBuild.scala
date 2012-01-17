@@ -8,7 +8,6 @@ import scala.xml._
 import com.schantz.sbt.PluginKeys._
 
 trait SchantzBuild extends Build {
-
   override def projectDefinitions(baseDirectory: File) = {
     println("Project definitaions: " + baseDirectory.getAbsolutePath)
     val xmlFile = new File(baseDirectory, ".project")
@@ -25,11 +24,14 @@ trait SchantzBuild extends Build {
   }
 
   def mySettings = {
-    Defaults.defaultSettings ++ Seq(exportJars := true,
-      artifactName <<= (name in Compile) { projectName =>
-        (config: String, module: ModuleID, artifact: Artifact) => projectName + "." + artifact.extension
-      })
+	  Defaults.defaultSettings ++ Seq(
+		  Keys.javacOptions ++= javacOptions  , exportJars := true,
+		  artifactName <<= (name in Compile) { projectName => (config: String, module: ModuleID, artifact: Artifact) =>
+		    projectName + "-" + module.revision + "." + artifact.extension
+		  })
   }
 
-  def javacOptions = Keys.javacOptions
+  def javacOptions = {
+    Seq("-encoding", "utf8", "-source", "1.5", "-target", "1.5")
+  }
 }

@@ -6,6 +6,7 @@ import Keys._
 import com.schantz.sbt.PluginKeys._
 import sbt.ProjectRef
 import Project.Initialize
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 object ReleasePlugin extends Plugin {
   def releaseSettings = {
@@ -34,11 +35,21 @@ object ReleasePlugin extends Plugin {
 
           Seq((projectName, " Branch:" + branchName.trim, " Type:SVN", " URL:" + repoUrl.trim))
         } else {
+          // TODO check git and hg here 
           val repoUrl = Process("hg" :: "showconfig" :: "paths.default" :: Nil, dir) !!
           val branchName = Process("hg" :: "branch" :: Nil, dir) !!
 
           Seq((projectName, " Branch:" + branchName.trim, " Type:HG", " URL:" + repoUrl.trim))
+        } 
+        /*else if((dir / ".git").exists()) {
+          val repoUrl = Process("git" :: "remote" :: "show" :: "origin" :: Nil, dir) !!
+          val branchName = Process("git" :: "branch" :: Nil, dir) !!
+
+          Seq((projectName, " Branch:" + branchName.trim, " Type:GIT", " URL:" + repoUrl.trim))
+        } else {
+        	throw new UnsupportedOperationException("unknown source control system in " + dir.getAbsolutePath)
         }
+        */
       }
       sourceDirs.foreach(println)
       sourceDirs
