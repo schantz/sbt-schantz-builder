@@ -13,7 +13,7 @@ import com.schantz.sbt.PluginKeys._
 object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
     warResourceDirectoriesTask ++
-      // default excludes
+      // default settings
       inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
       // configure web app
       warSettings ++ Seq(
@@ -34,28 +34,33 @@ object MergeWebResourcesPlugin extends Plugin {
                 // remove unwanted meta-inf content
                 streams.log.info("Excluding content from meta-inf: " + warExcludedMetaInfResources)
                 warExcludedMetaInfResources.foreach(content => IO.delete(warPath / "META-INF" / content))
-                
-                // TODO stop doing this, as it leads to duplicated web resources
+
                 // merge content in web-inf content
                 (warPath / "WEB-INF").listFiles.foreach { file =>
-                  val name = file.getName()
-                  val suffix = ".sbt"
-                   if(name.endsWith(suffix)) {
-                     var replace = warPath / "WEB-INF" / name.substring(0, name.length - suffix.length)
-                     streams.log.info("renaming " + file.getAbsolutePath() + " into " + replace.getAbsolutePath())
-                     IO.copy( Seq((file, replace)) )
-                     IO.delete(file)    
-                   }
+                  val targetPath = warPath / "WEB-INF" / file.getName()
+                  replaceSBTResources(file, targetPath, streams)
                 }
-               
+
                 // copy web resources from other projects
                 warResourceDirectories.foreach(dir => {
                   streams.log.info("merging war resources from " + dir.getAbsolutePath())
-                  safeCopy(dir, warPath / "WEB-INF/classes")
+                  safeCopy(dir, warPath / "WEB-INF/classes", streams)
                 })
             }
         },
         webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war"))
+  }
+
+  // this is a hack to be able to run wih different files in production and test
+  private def replaceSBTResources(sourceFile: File, targetFile: File, out: TaskStreams) = {
+    val suffix = ".sbt"
+    if (sourceFile.getAbsolutePath().endsWith(suffix)) {
+      var replace = new File(targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().length - suffix.length))
+      out.log.info("Merging SBT resource " + sourceFile.getAbsolutePath() + " into " + replace.getAbsolutePath())
+      // ensure that any existing files are overwritten
+      if(replace.exists()) IO.delete(replace)
+      IO.copy(Seq((sourceFile, replace)))
+    }
   }
 
   // retrieve the web resource directories for all dependent project
@@ -66,7 +71,7 @@ object MergeWebResourcesPlugin extends Plugin {
     resourceDirectoriesForDependencies map { resourceSeq =>
       val dirs = resourceSeq.flatten
       // in dependencies traverse the projects in opposite order of the class-path so we must reverse result
-      dirs.filter(dir => dir.exists()).reverse
+      dirs.filter(dir => dir.exists())
     }
   }
 
@@ -95,20 +100,18 @@ object MergeWebResourcesPlugin extends Plugin {
     }
   }
 
-  private def safeCopy(sourceDir: File, destDir: File) = {
+  private def safeCopy(sourceDir: File, destDir: File, out: TaskStreams) = {
     // needed to handle windows paths correctly http://stackoverflow.com/questions/8892960/quote-escape-path-for-use-in-regex/8893418#8893418
     val extractRelativePath = ("""\Q""" + sourceDir.getAbsolutePath.replaceAll("\\\\E", "\\\\E\\\\\\\\E\\\\Q") + """\E(.*)""").r
 
+    val suffix = ".sbt"
     val filesToCopy = recursiveListFiles(sourceDir) flatMap { file =>
       val extractRelativePath(relativePath) = file.getAbsolutePath
       val targetPath = destDir / relativePath
-      if (targetPath.exists) {
-        Nil
-      } else {
-        Seq((file, targetPath))
-      }
-    }
 
+      replaceSBTResources(file, targetPath, out)
+      Seq((file, targetPath))
+    }
     IO.copy(filesToCopy)
   }
 
