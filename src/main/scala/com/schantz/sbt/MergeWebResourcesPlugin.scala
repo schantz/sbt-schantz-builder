@@ -35,7 +35,7 @@ object MergeWebResourcesPlugin extends Plugin {
                 streams.log.info("Excluding content from meta-inf: " + warExcludedMetaInfResources)
                 warExcludedMetaInfResources.foreach(content => IO.delete(warPath / "META-INF" / content))
 
-                // merge content in web-inf content
+                // replace SBT resources in WEB-INF
                 (warPath / "WEB-INF").listFiles.foreach { file =>
                   val targetPath = warPath / "WEB-INF" / file.getName()
                   replaceSBTResources(file, targetPath, streams)
@@ -51,7 +51,7 @@ object MergeWebResourcesPlugin extends Plugin {
         webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war"))
   }
 
-  // this is a hack to be able to run wih different files in production and test
+  // this is a hack to be able to run with different files in production and test
   private def replaceSBTResources(sourceFile: File, targetFile: File, out: TaskStreams) = {
     val suffix = ".sbt"
     if (sourceFile.getAbsolutePath().endsWith(suffix)) {
@@ -85,7 +85,7 @@ object MergeWebResourcesPlugin extends Plugin {
 
     var allJars = fullClasspath.flatMap { jar => if (jar.data.isFile()) Seq(extractVersionFromJar(jar.data)) else Seq() }
     var warJars = warLibPath.listFiles().filter(_.isFile()).map { jar => extractVersionFromJar(jar) }
-    // all jar's contains the entire class path correctly ordered by dependent projects
+    // allJars contains the entire class path correctly ordered by dependent projects
     allJars.foreach { jarEntry =>
       var found = (warLibPath / jarEntry.jarFile.getName()).isFile()
       if (found) {
