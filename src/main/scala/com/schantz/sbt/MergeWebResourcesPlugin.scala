@@ -17,6 +17,8 @@ object MergeWebResourcesPlugin extends Plugin {
       inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
       // configure web app
       warSettings ++ Seq(
+        // TODO clear existing web app resources and search through project for src/main/webapp, war, webcontent
+        webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war"),
         warPostProcess in Compile <<= (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath in Compile) map {
           (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) =>
             {
@@ -47,8 +49,7 @@ object MergeWebResourcesPlugin extends Plugin {
                   safeCopy(dir, warPath / "WEB-INF/classes", streams)
                 })
             }
-        },
-        webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war"))
+        })
   }
 
   // this is a hack to be able to run with different files in production and test

@@ -18,7 +18,7 @@ trait SchantzBuild extends Build {
 			TestSuitesPlugin.testSuiteSettings ++ 
 			EarPlugin.earSettings ++ 
 			ReleasePlugin.releaseSettings ++ 
-			CleanPlugin.cleanPluginSettings
+			SonarPlugin.sonarSettings
 
     Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (dependencyList: _*))
   }

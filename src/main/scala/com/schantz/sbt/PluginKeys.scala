@@ -4,10 +4,9 @@ import sbt._
 
 object PluginKeys {
   // tooling
-  val cleanPluginInDependencies = TaskKey[Unit]("schantz-clean", "Clean plugin for dependent projects")
+  lazy val sonarBuildConfig = TaskKey[Unit]("schantz-sonar-build-config", "Build sonar config file for projects")
   
   // war
-  // lazy val warPrepare = TaskKey[Seq[(File, String)]]("war-prepare")
   lazy val warExcludedJars = SettingKey[Seq[String]]("schantz-war-exclude-jars", "jars used for compile but not packaged") 
   lazy val warExcludedMetaInfResources = SettingKey[Seq[String]]("schantz-war-exclude-metainf", "resources excluded from war META-INF") 
   lazy val warResourceDirectories = TaskKey[Seq[File]]("schantz-war-resource-directories", "Show web resource directories for dependent projects") 
