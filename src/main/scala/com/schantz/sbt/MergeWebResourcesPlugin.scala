@@ -52,18 +52,6 @@ object MergeWebResourcesPlugin extends Plugin {
         })
   }
 
-  // this is a hack to be able to run with different files in production and test
-  private def replaceSBTResources(sourceFile: File, targetFile: File, out: TaskStreams) = {
-    val suffix = ".sbt"
-    if (sourceFile.getAbsolutePath().endsWith(suffix)) {
-      var replace = new File(targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().length - suffix.length))
-      out.log.info("Merging SBT resource " + sourceFile.getAbsolutePath() + " into " + replace.getAbsolutePath())
-      // ensure that any existing files are overwritten
-      if(replace.exists()) IO.delete(replace)
-      IO.copy(Seq((sourceFile, replace)))
-    }
-  }
-
   // retrieve the web resource directories for all dependent project
   private def warResourceDirectoriesTask = warResourceDirectories <<= {
     val key: SettingKey[Seq[File]] = resourceDirectories in Compile
@@ -73,6 +61,18 @@ object MergeWebResourcesPlugin extends Plugin {
       val dirs = resourceSeq.flatten
       // in dependencies traverse the projects in opposite order of the class-path so we must reverse result
       dirs.filter(dir => dir.exists())
+    }
+  }
+
+  // this is a hack to be able to run with different files in production and test
+  private def replaceSBTResources(sourceFile: File, targetFile: File, out: TaskStreams) = {
+    val suffix = ".sbt"
+    if (sourceFile.getAbsolutePath().endsWith(suffix)) {
+      var replace = new File(targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().length - suffix.length))
+      out.log.info("Merging SBT resource " + sourceFile.getAbsolutePath() + " into " + replace.getAbsolutePath())
+      // ensure that any existing files are overwritten
+      if(replace.exists()) IO.delete(replace)
+      IO.copy(Seq((sourceFile, replace)))
     }
   }
 

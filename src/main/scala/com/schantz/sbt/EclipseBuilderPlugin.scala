@@ -12,10 +12,7 @@ object EclipseBuilderPlugin extends Plugin {
   val classpathFileName = ".classpath"
 
   // Settings to be included in projects that uses this plugin.
-  lazy val newSettings = {
-    //var base: sbt.SettingKey[java.io.File] = baseDirectory
-    //val myApply: java.io.File => sbt.Project.Initialize[Seq[java.io.File]] = baseDirectory.apply
-    
+  lazy val newSettings = {    
     Seq(
       // version and artifact name
       version <<= (baseDirectory) { (base) => findVersionNumber(base) },
@@ -29,22 +26,26 @@ object EclipseBuilderPlugin extends Plugin {
       
       // dependencies
       unmanagedJars in Compile <++= baseDirectory map { base => scanClassPath(base) },
-      // classes to exclude
-      mappings in (Compile, packageBin) ~= filterClassesFromPackage)
+      
+      // classes to exclude (this runs after compile but before package-bin)
+      compile in Compile <<= (target,streams,compile in Compile) map{
+        (targetDirectory, taskStream, analysis) =>
+          import taskStream.log
+          recursiveFilterFiles(targetDirectory, ".*javax.*".r) foreach { 
+            file =>
+            log.warn("deleting matched resource: " + file.getAbsolutePath())
+            IO.delete(file)
+          }
+        analysis
+      }
+    )
   }
 
-  /*
-   * Excludes classes from being packaged
-   *
-   * fx. "javax/servlet/Servlet.class"
-   */
-  def filterClassesFromPackage(mappings: Seq[(File, String)]) = {
-    mappings filter {
-      case (file, toPath) => {
-        // TODO try testing with something in foundation and see if its removed, if it is then add key
-        toPath != "javax/servlet/Servlet.class"
-      }
-    }
+  // retrive all files in folder that matches regex
+  private def recursiveFilterFiles(folder: File, matcher: Regex): Array[File] = {
+    val these = folder.listFiles
+    val matched = these.filter(file => matcher.findFirstIn(file.getName).isDefined)
+    matched ++ these.filter(_.isDirectory).flatMap(recursiveFilterFiles(_, matcher))
   }
 
   /*

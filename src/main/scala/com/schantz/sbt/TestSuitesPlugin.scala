@@ -13,22 +13,22 @@ object TestSuitesPlugin extends Plugin {
   }
   implicit def listToJavaList[T](l: Seq[T]) = new JavaListWrapper(l)
 
-  private def runTestSuitesTask = runTestSuites <<= (target, streams, testSuites) map {
-    (targetDirectory, taskStream, suites) =>
-      import taskStream.log
-      log.info("running test suites: " + suites)
-      runSuites(suites)
-  }
-
-  private def runSuites(testSuites: Seq[String]) = {
-    var tester = new TestNG
-    tester.setTestSuites(testSuites.toJavaList)
-    tester.run()
-  }
-
   def testSuiteSettings = {
     inConfig(Compile)(Seq(
       runTestSuitesTask,
       testSuites := Seq("testsuites/mysuite.xml")))
+  }
+
+  private def runTestSuitesTask = runTestSuites <<= (target, streams, testSuites) map {
+    (target, streams, testSuites) =>
+      import streams.log
+      log.info("running test suites: " + testSuites)
+      runSuites(testSuites)
+  }
+
+  private def runSuites(suites: Seq[String]) = {
+    var tester = new TestNG
+    tester.setTestSuites(suites.toJavaList)
+    tester.run()
   }
 }

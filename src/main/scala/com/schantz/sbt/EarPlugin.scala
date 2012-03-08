@@ -5,6 +5,11 @@ import Keys._
 import com.schantz.sbt.PluginKeys._
 
 object EarPlugin extends Plugin {
+  def earSettings = {
+    Seq(packageEar := packageEarTask dependsOn(compile))
+    inConfig(Compile)(Seq(earName <<= (moduleName) { (module) => module + ".ear" }))
+  }
+
   private def packageEarTask = (baseDirectory, target, streams, earName, name, version, scalaVersion, state) map {
     (base, targetDir, out, earName, name, version, scalaVersion, state) =>
       // TODO find a more robust way of getting war file name (fx using artifact) 
@@ -21,10 +26,4 @@ object EarPlugin extends Plugin {
         ((base / "application.xml"), "META-INF/application.xml"),
         ((base / "war/META-INF/weblogic-application.xml"), "META-INF/weblogic-application.xml")) ++ metaInfContent, earFile)
   }
-
-  def earSettings = {
-    Seq(packageEar := packageEarTask dependsOn(compile))
-    inConfig(Compile)(Seq(earName <<= (moduleName) { (module) => module + ".ear" }))
-  }
 }
-
