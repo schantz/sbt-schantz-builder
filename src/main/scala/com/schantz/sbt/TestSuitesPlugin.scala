@@ -32,3 +32,4 @@ object TestSuitesPlugin extends Plugin {
     tester.run()
   }
 }
+

@@ -18,17 +18,19 @@ trait SchantzBuild extends Build {
 			TestSuitesPlugin.testSuiteSettings ++ 
 			EarPlugin.earSettings ++ 
 			ReleasePlugin.releaseSettings ++ 
-			SonarPlugin.sonarSettings
+			SonarPlugin.sonarSettings ++
+      DBBuildPlugin.dbBuildSettings
 
     Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (dependencyList: _*))
   }
 
   def mySettings = {
 	  Defaults.defaultSettings ++ Seq(
-		  Keys.javacOptions ++= javacOptions  , exportJars := true,
+		  Keys.javacOptions ++= javacOptions, exportJars := true,
 		  artifactName <<= (name in Compile) { projectName => (config: String, module: ModuleID, artifact: Artifact) =>
 		    projectName + "-" + module.revision + "." + artifact.extension
-		  })
+		  }
+    )
   }
 
   def javacOptions = {

@@ -4,7 +4,7 @@ import sbt._
 
 object PluginKeys {
   // tooling
-  lazy val sonarBuildConfig = TaskKey[Unit]("schantz-sonar-build-config", "Build sonar config file for projects")
+  lazy val sonarConfig = TaskKey[Unit]("schantz-sonar-config", "Build sonar config file for projects")
   
   // war
   lazy val warExcludedJars = SettingKey[Seq[String]]("schantz-war-exclude-jars", "jars used for compile but not packaged") 
@@ -24,4 +24,11 @@ object PluginKeys {
 
   // package
   lazy val packageExcludedClasses = SettingKey[Seq[String]]("schantz-exclude-classes", "classes used for compile but not packaged")
+
+  // DB build
+  lazy val dbBuild = TaskKey[Unit]("schantz-dbbuild", "Build database") 
+  lazy val dbBuildClass = SettingKey[String]("schantz-dbbuild-class", "Full name of class used to build database") 
+
+  // TMC
+  lazy val tmcArchive = TaskKey[Unit]("schantz-archive-tmc", "archive to TMC") 
 }

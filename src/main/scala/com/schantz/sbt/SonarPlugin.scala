@@ -8,10 +8,10 @@ object SonarPlugin extends Plugin {
   val configFile = "sonar-project.properties"
 
   def sonarSettings = {
-    inConfig(Compile)(Seq(sonarBuildConfigTask))
+    inConfig(Compile)(Seq(sonarConfigTask))
   }
 
-  private def sonarBuildConfigTask = sonarBuildConfig <<= (name, organization, version, unmanagedSourceDirectories, unmanagedJars, baseDirectory, classDirectory) map {
+  private def sonarConfigTask = sonarConfig <<= (name, organization, version, unmanagedSourceDirectories, unmanagedJars, baseDirectory, classDirectory) map {
     (name, organization, version, unmanagedSourceDirectories, unmanagedJars, baseDirectory, classDirectory) =>
       var propertiesMap = Map(): Map[String, String]
       // metadata
