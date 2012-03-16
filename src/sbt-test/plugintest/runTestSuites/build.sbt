@@ -1,6 +1,5 @@
-import com.schantz.sbt.RunTestSuitesPlugin._
+import com.schantz.sbt.TestSuitesPlugin._
 
-Seq(testSuiteSettings :_*)
+Seq(testSuiteSettings :_*) 
 
-
-
+testSuites in Compile := Seq("testsuites/suite.xml")

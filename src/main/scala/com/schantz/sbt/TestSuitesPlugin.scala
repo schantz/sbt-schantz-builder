@@ -10,15 +10,13 @@ import scala.collection.JavaConversions._
 object TestSuitesPlugin extends Plugin {
 
   def testSuiteSettings = {
-    inConfig(Compile)(Seq(
-      runTestSuitesTask,
-      testSuites := Seq("testsuites/mysuite.xml")))
+    inConfig(Compile)(Seq(testSuites := Seq("testsuites/mysuite.xml"))) ++ Seq(
+      runTestSuites <<= (target, streams, testSuites in Compile) map runTestSuitesTask
+    )
   }
 
-  private def runTestSuitesTask = runTestSuites <<= (target, streams, testSuites) map {
-    (target, streams, testSuites) =>
-      import streams.log
-      log.info("running test suites: " + testSuites)
+  private def runTestSuitesTask(target:File, streams:TaskStreams, testSuites:Seq[String]) {
+      streams.log.info("running test suites: " + testSuites)
       runSuites(testSuites)
   }
 

@@ -13,13 +13,17 @@ trait SchantzBuild extends Build {
     val xmlFile = new File(baseDirectory, ".project")
     val projectName = (XML.loadFile(xmlFile) \\ "projectDescription" \ "name").text
     val dependencyList = EclipseBuilderPlugin.dependedProjects(baseDirectory)
-    var buildSettings = mySettings ++ 
-			EclipseBuilderPlugin.newSettings ++ 
-			TestSuitesPlugin.testSuiteSettings ++ 
-			EarPlugin.earSettings ++ 
-			ReleasePlugin.releaseSettings ++ 
-			SonarPlugin.sonarSettings ++
-      DBBuildPlugin.dbBuildSettings
+    // note orders matters here as the last setting overrides the rest 
+    var buildSettings = 
+      // loaded before my settings, so we can override the defaults in the build
+      //DBBuildPlugin.dbBuildSettings ++
+      //TestSuitesPlugin.testSuiteSettings ++ 
+      //EarPlugin.earSettings ++ 
+      ReleasePlugin.releaseSettings ++ 
+      SonarPlugin.sonarSettings ++
+      mySettings ++ 
+      // must come after mySettings as it overrides the default directory settings
+      EclipseBuilderPlugin.newSettings
 
     Seq(Project(projectName, file("."), settings = buildSettings) dependsOn (dependencyList: _*))
   }
