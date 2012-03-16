@@ -6,15 +6,13 @@ import com.schantz.sbt.PluginKeys._
 
 object DBBuildPlugin extends Plugin {
   def dbBuildSettings = {
-    inConfig(Compile)(Seq(
-      dbBuildTask,
-      dbBuildClass := "com.schantz.foundation.util.db.mssql.BpDbBuilderTest"))
+    inConfig(Compile)(Seq(dbBuildClass := null, dbBuildName := null, dbBuildPath := null, dbBuildTask))
   }
 
-  private def dbBuildTask = dbBuild <<= (dbBuildClass, streams, fullClasspath) map {
-    (dbBuildClass, streams, fullClasspath) =>
+  private def dbBuildTask = dbBuild <<= (dbBuildClass, dbBuildName, dbBuildPath, fullClasspath) map {
+    (dbBuildClass, dbBuildName, dbBuildPath, fullClasspath) =>
     val cp = fullClasspath.map { e => e.data.getAbsolutePath }
-    //Some(dbBuildClass),
+    // TODO make into a general function for executing java processes
     var cmd: String = "java "
     cmd += "-ea "
     cmd += "-Xmx1200m "
@@ -22,13 +20,11 @@ object DBBuildPlugin extends Plugin {
     cmd += "-Xss1024k "
     cmd += "-XX:MaxPermSize=256m "
     cmd += "-cp " + cp.mkString(":")
-    cmd += " " + dbBuildClass + " "
+    cmd += " " + dbBuildClass
     // args
-    cmd += "lt-sbt-build "
-    cmd += "//nas.schantz.com/GalopDbUpload/dbDumps/unpatched/Bp/BankPensionAdvLife_full.bak"
+    cmd += " " + dbBuildName
+    cmd += " " + dbBuildPath
 
     cmd !;
-    //val output: String = cmd !!;
-    //streams.log.info("DBBUILD OUTPUT \n" + output)
   }
 }

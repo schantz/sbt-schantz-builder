@@ -26,8 +26,10 @@ object PluginKeys {
   lazy val packageExcludedClasses = SettingKey[Seq[String]]("schantz-exclude-classes", "classes used for compile but not packaged")
 
   // DB build
-  lazy val dbBuild = TaskKey[Unit]("schantz-dbbuild", "Build database") 
+  lazy val dbBuild = TaskKey[Unit]("schantz-dbbuild", "Build a test database from a anonomous prod database") 
   lazy val dbBuildClass = SettingKey[String]("schantz-dbbuild-class", "Full name of class used to build database") 
+  lazy val dbBuildName = SettingKey[String]("schantz-dbbuild-name", "Name of generated database") 
+  lazy val dbBuildPath = SettingKey[String]("schantz-dbbuild-path", "Path of the full database to build test database from") 
 
   // TMC
   lazy val tmcArchive = TaskKey[Unit]("schantz-archive-tmc", "archive to TMC") 
