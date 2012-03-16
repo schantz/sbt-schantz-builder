@@ -6,6 +6,7 @@ import com.schantz.sbt.PluginKeys._
 
 object EarPlugin extends Plugin {
   def earSettings = {
+    // TODO this is strange way to set up a settings sequence, do it in one go instead of two
     Seq(packageEar := packageEarTask dependsOn(compile))
     inConfig(Compile)(Seq(earName <<= (moduleName) { (module) => module + ".ear" }))
   }
