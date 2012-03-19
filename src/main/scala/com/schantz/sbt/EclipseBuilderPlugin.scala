@@ -168,32 +168,36 @@ object EclipseBuilderPlugin extends Plugin {
   def find(name: String, currentDir: File): Option[File] = {
     var parentPath = new File(getParentDirectory(currentDir.getAbsolutePath))
     var notFound = true
+    println("Searching down...")
     while (parentPath.getAbsolutePath != "/") {
       debug("Searching: " + parentPath.getAbsolutePath)
       val found = searchDown(parentPath, name)
-      if (found.size > 0) {
-        return Some(found.first)
+      found match {
+        case Some(x) => return Some(x)
+        case None => parentPath = new File(getParentDirectory(parentPath.getAbsolutePath))
       }
-
-      parentPath = new File(getParentDirectory(parentPath.getAbsolutePath))
     }
     None
   }
 
-  def searchDown(aStartingDir: File, name: String): List[File] = {
-    var result = List[File]()
+  def searchDown(aStartingDir: File, name: String): Option[File] = {
+    var result = None
     val filesAndDirs = aStartingDir.listFiles()
-
     for (file <- filesAndDirs) {
       if (file.getName == ".project") {
         val projectName = (XML.loadFile(file) \\ "projectDescription" \ "name").text
         if (projectName == name)
-          result = new File(getParentDirectory(file.getAbsolutePath)) :: result
+          return Some(new File(getParentDirectory(file.getAbsolutePath)))
+        else
+          return None
       }
 
       if (file.isDirectory()) {
         val deeperList = searchDown(file, name)
-        result = deeperList ::: result
+        deeperList match {
+          case Some(x) => return Some(x)
+          case None => 
+        }
       }
     }
     return result;
