@@ -168,7 +168,6 @@ object EclipseBuilderPlugin extends Plugin {
   def find(name: String, currentDir: File): Option[File] = {
     var parentPath = new File(getParentDirectory(currentDir.getAbsolutePath))
     var notFound = true
-    println("Searching down...")
     while (parentPath.getAbsolutePath != "/") {
       debug("Searching: " + parentPath.getAbsolutePath)
       val found = searchDown(parentPath, name)
