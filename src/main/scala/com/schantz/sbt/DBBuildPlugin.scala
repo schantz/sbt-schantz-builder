@@ -16,19 +16,21 @@ object DBBuildPlugin extends Plugin {
     assert(dbBuildName.nonEmpty, "DB build name not specified correctly: " + dbBuildName)
     assert(dbBuildPath.nonEmpty, "DB build path not specified correctly: " + dbBuildPath)
 
-    val cp = fullClasspath.map { e => e.data.getAbsolutePath }
-    // TODO make into a general function for executing java processes
+    runMain(dbBuildClass, List(dbBuildName, dbBuildPath), fullClasspath);
+  }
+
+  private def runMain(mainClass:String, args:Seq[String], classpath:Seq[Attributed[File]]) = {
+    val cp = classpath.map { e => e.data.getAbsolutePath.replaceAll("\\\\E", "\\\\E\\\\\\\\E\\\\Q") }
     var cmd: String = "java "
     cmd += "-ea "
-    cmd += "-Xmx1200m "
+    cmd += "-Xmx1512m "
     cmd += "-Djavax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema=org.apache.xerces.jaxp.validation.XMLSchemaFactory "
     cmd += "-Xss1024k "
-    cmd += "-XX:MaxPermSize=256m "
+    cmd += "-XX:MaxPermSize=512m "
     cmd += "-cp " + cp.mkString(":")
-    cmd += " " + dbBuildClass
-    // args
-    cmd += " " + dbBuildName
-    cmd += " " + dbBuildPath
+    cmd += " " + mainClass
+    cmd += " " + args.mkString(" ")
+    print("LAUNCH " + cmd)
 
     cmd !;
   }

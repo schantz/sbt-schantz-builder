@@ -16,9 +16,7 @@ trait SchantzBuild extends Build {
     // note orders matters here as the last setting overrides the rest 
     var buildSettings = 
       // loaded before my settings, so we can override the defaults in the build
-      //DBBuildPlugin.dbBuildSettings ++
       //TestSuitesPlugin.testSuiteSettings ++ 
-      //EarPlugin.earSettings ++ 
       ReleasePlugin.releaseSettings ++ 
       SonarPlugin.sonarSettings ++
       mySettings ++ 
