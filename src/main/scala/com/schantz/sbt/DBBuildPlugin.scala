@@ -20,18 +20,21 @@ object DBBuildPlugin extends Plugin {
   }
 
   private def runMain(mainClass:String, args:Seq[String], classpath:Seq[Attributed[File]]) = {
-    val cp = classpath.map { e => e.data.getAbsolutePath.replaceAll("\\\\E", "\\\\E\\\\\\\\E\\\\Q") }
+    val cp = classpath.map { e => e.data.getAbsolutePath }
+    val isWindows = System.getProperty("os.name").toLowerCase().contains("win")
     var cmd: String = "java "
     cmd += "-ea "
+    cmd += "-Dfile.encoding=UTF8 "
+    cmd += "-XX:MaxPermSize=512m "
     cmd += "-Xmx1512m "
     cmd += "-Djavax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema=org.apache.xerces.jaxp.validation.XMLSchemaFactory "
     cmd += "-Xss1024k "
-    cmd += "-XX:MaxPermSize=512m "
-    cmd += "-cp " + cp.mkString(":")
+    cmd += "-classpath " + cp.mkString(if(isWindows) ";" else ":")
     cmd += " " + mainClass
     cmd += " " + args.mkString(" ")
-    print("LAUNCH " + cmd)
+    print("RUN-MAIN\n" + cmd)
 
+    // TODO catch failed executions
     cmd !;
   }
 }
