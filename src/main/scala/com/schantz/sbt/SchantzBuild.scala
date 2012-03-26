@@ -12,6 +12,10 @@ trait SchantzBuild extends Build {
     println("Project definitaions: " + baseDirectory.getAbsolutePath)
     val xmlFile = new File(baseDirectory, ".project")
     val projectName = (XML.loadFile(xmlFile) \\ "projectDescription" \ "name").text
+    if(System.getProperty("root.project") == null) {
+      println("Root project: " + projectName);
+      System.setProperty("root.project", projectName); 
+    }
     val dependencyList = EclipseBuilderPlugin.dependedProjects(baseDirectory)
     // note orders matters here as the last setting overrides the rest 
     var buildSettings = 
@@ -28,9 +32,18 @@ trait SchantzBuild extends Build {
 
   def mySettings = {
 	  Defaults.defaultSettings ++ Seq(
-		  Keys.javacOptions ++= javacOptions, exportJars := true,
+		  Keys.javacOptions ++= javacOptions, 
+      exportJars := true,
+      // version and artifact name
+      version <<= (baseDirectory, name in Compile) { (base, projectName) => BuildHelper.findVersionNumber(base, projectName) },
+      // artifact name
 		  artifactName <<= (name in Compile) { projectName => (config: String, module: ModuleID, artifact: Artifact) =>
-		    projectName + "-" + module.revision + "." + artifact.extension
+		    var newName = projectName
+        if(module.revision.nonEmpty) {
+          newName += "-" + module.revision 
+        }
+        newName += "." + artifact.extension
+        newName
 		  }
     )
   }

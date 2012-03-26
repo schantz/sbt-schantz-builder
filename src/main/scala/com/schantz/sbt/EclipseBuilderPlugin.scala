@@ -14,8 +14,6 @@ object EclipseBuilderPlugin extends Plugin {
   // Settings to be included in projects that uses this plugin.
   lazy val newSettings = {    
     Seq(
-      // version and artifact name
-      version <<= (baseDirectory) { (base) => findVersionNumber(base) },
       // resources
       unmanagedResourceDirectories in Compile <<= baseDirectory { base => findResourceDirectories(base / classpathFileName, base) },
      
@@ -48,11 +46,11 @@ object EclipseBuilderPlugin extends Plugin {
     matched ++ these.filter(_.isDirectory).flatMap(recursiveFilterFiles(_, matcher))
   }
 
-  /*
-    *   Scans the .classpath file, and finds the JarRepository.
-    *   Prefixes the entries in the classpath file with the absolute 
-    *   path of JarRepository
-    */
+  /**
+   *  Scans the .classpath file, and finds the JarRepository.
+   *  Prefixes the entries in the classpath file with the absolute 
+   *  path of JarRepository
+   */
   def scanClassPath(basedir: File) = {
     val classpathFile = basedir / classpathFileName
     debug("Eclipe classpath file = " + classpathFile.getAbsolutePath)
@@ -78,43 +76,14 @@ object EclipseBuilderPlugin extends Plugin {
     jars
   }
 
-  /*
-    *   Scans the .classpath file, and finds the source directories
-    */
+  /**
+   *   Scans the .classpath file, and finds the source directories
+   */
   def findSourceDirectories(classpathFile: File, basedir: File) = {
     val xml = XML.loadFile(classpathFile)
     val sourceDirs = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "src" && (e \\ "@output").text == "").map(e => basedir / (e \\ "@path").text)
     debug("Source directories: " + sourceDirs.mkString("\n\t"))
     sourceDirs
-  }
-
-  /* 
-   * Scan base directory for version info
-   */
-  def findVersionNumber(basedir: File): String = {
-    import scala.io._
-    val versionFiles = Seq((basedir / "resources/build.version"), (basedir / "src/main/resources/build.version")).filter(_.exists())
-
-    var majorVersion = "1."
-    var minorVersion = "0"
-
-    versionFiles.foreach { file =>
-      debug("Scanning version file: " + file.getAbsoluteFile())
-      val versionInfo = Source.fromFile(file).getLines
-      val minorNumberRegex = """build.number=(.*)""".r
-      val majorNumberRegex = """major.version=.*-(.*)""".r
-
-      for (line <- versionInfo) {
-        line match {
-          case minorNumberRegex(minor) => minorVersion = minor
-          case majorNumberRegex(major) => majorVersion = major
-          case _ => ()
-        }
-      }
-    }
-    val versionNumber = majorVersion + minorVersion
-    debug("Setting version: " + versionNumber + " for " + basedir.getAbsolutePath())
-    versionNumber
   }
 
   /**
@@ -128,9 +97,9 @@ object EclipseBuilderPlugin extends Plugin {
     resourceDirs
   }
 
-  /*
-    *   Scans the .classpath file, and finds the test source directories
-    */
+  /**
+   * Scans the .classpath file, and finds the test source directories
+   */
   def findTestSourceDirectories(classpathFile: File, basedir: File) = {
     val xml = XML.loadFile(classpathFile)
     val sourceDirs = (xml \\ "classpathentry").filter(e => (e \\ "@kind").text == "src" && (e \\ "@output").text != "").map(e => basedir / (e \\ "@path").text)
@@ -138,9 +107,9 @@ object EclipseBuilderPlugin extends Plugin {
     sourceDirs
   }
 
-  /*
-    *   Scans the .classpath file, and finds the project dependencies
-    */
+  /**
+   * Scans the .classpath file, and finds the project dependencies
+   */
   def findProjects(classpathFile: File, basedir: File) = {
     val xml = XML.loadFile(classpathFile)
     val sourceDirs = (xml \\ "classpathentry").filter(e => {

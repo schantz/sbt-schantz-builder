@@ -8,23 +8,21 @@ object EarPlugin extends Plugin {
   def earSettings = {
     inConfig(Compile)(Seq(earName<<= (moduleName) { (module) => module + ".ear" })) ++ 
     Seq(
-      packageEar in Global <<= (baseDirectory, target, streams, earName in Compile, name, version, scalaVersion) map packageEarTask
+      packageEar in Global <<= (baseDirectory, target, streams, earName in Compile, fullClasspath in Compile, scalaVersion) map packageEarTask
     ) 
   }
 
-  private def packageEarTask(baseDirectory:File, target:File, streams:TaskStreams, earName:String, name:String, version:String, scalaVersion:String) {
+  private def packageEarTask(baseDirectory:File, target:File, streams:TaskStreams, earName:String, fullClasspath:Seq[Attributed[File]], scalaVersion:String) {
       // TODO find a more robust way of getting war file name (fx using artifact) 
-      var earFile = target / earName
-      var warFile = target / ("scala-" + scalaVersion + "/" + name + "-" + version + ".war")
-      var metaInf = baseDirectory / ("src/main/application")
+      var earFile = BuildHelper.getDeployDir / earName
+      var appFileDir:File = target / ("scala-" + scalaVersion)
+      var appFiles = (appFileDir ** "*.jar").get x (relativeTo(appFileDir) | flat) 
+      var metaInf = baseDirectory / ("ear_resources")
       var metaInfContent = (metaInf ** "*.*").get x (relativeTo(metaInf) | flat)
+      var earContent = metaInfContent ++ appFiles
 
-      streams.log.info("creating ear file: " + earFile.getPath() + " using war file " + warFile.getPath())
+      streams.log.info("creating ear file: " + earFile.getPath() + " with content " + earContent.mkString("\n"))
       IO.delete(earFile)
-      IO.zip(Seq(
-        (warFile, warFile.getName()),
-        // TODO make configurable and remove them if they do not exists
-        ((baseDirectory / "application.xml"), "META-INF/application.xml"),
-        ((baseDirectory / "war/META-INF/weblogic-application.xml"), "META-INF/weblogic-application.xml")) ++ metaInfContent, earFile)
+      IO.zip(earContent, earFile)
   }
 }

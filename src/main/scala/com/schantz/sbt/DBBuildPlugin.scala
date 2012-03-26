@@ -6,12 +6,14 @@ import com.schantz.sbt.PluginKeys._
 
 object DBBuildPlugin extends Plugin {
   def dbBuildSettings = {
+
     Seq(
-        dbBuild in Global <<= (dbBuildClass in Compile, dbBuildName in Compile, dbBuildPath in Compile, fullClasspath in Compile) map dbBuildTask
+        dbBuild in Global <<= (dbBuildClass in Compile, dbBuildPath in Compile, fullClasspath in Compile) map dbBuildTask
     )
   }
 
-  private def dbBuildTask(dbBuildClass:String, dbBuildName:String, dbBuildPath:String, fullClasspath:Seq[Attributed[File]]) = {
+  private def dbBuildTask(dbBuildClass:String, dbBuildPath:String, fullClasspath:Seq[Attributed[File]]) = {
+    var dbBuildName = System.getProperty("dbBuildName")
     assert(dbBuildClass.nonEmpty, "DB build class not specified correctly: " + dbBuildClass)
     assert(dbBuildName.nonEmpty, "DB build name not specified correctly: " + dbBuildName)
     assert(dbBuildPath.nonEmpty, "DB build path not specified correctly: " + dbBuildPath)

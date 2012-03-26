@@ -50,6 +50,7 @@ object MergeWebResourcesPlugin extends Plugin {
                 })
             }
         })
+      // TODO dump in deploy
   }
 
   // retrieve the web resource directories for all dependent project

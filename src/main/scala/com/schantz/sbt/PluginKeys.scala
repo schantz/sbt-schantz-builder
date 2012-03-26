@@ -31,6 +31,7 @@ object PluginKeys {
   lazy val dbBuildName = SettingKey[String]("schantz-dbbuild-name", "Name of generated database") 
   lazy val dbBuildPath = SettingKey[String]("schantz-dbbuild-path", "Path of the full database to build test database from") 
 
-  // TMC
-  lazy val tmcArchive = TaskKey[Unit]("schantz-archive-tmc", "archive to TMC") 
+  // Archive
+  lazy val archive = TaskKey[Unit]("schantz-archive", "archive build to another folder") 
+  lazy val archivePath = SettingKey[String]("schantz-archive-path", "archive path") 
 }
