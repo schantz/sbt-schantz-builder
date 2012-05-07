@@ -18,7 +18,12 @@ object DBBuildPlugin extends Plugin {
     assert(dbBuildName.nonEmpty, "DB build name not specified correctly: " + dbBuildName)
     assert(dbBuildPath.nonEmpty, "DB build path not specified correctly: " + dbBuildPath)
 
-    runMain(dbBuildClass, List(dbBuildName, dbBuildPath), fullClasspath);
+    val f = file(dbBuildPath);
+    if (f.isDirectory()) {
+      f.listFiles().filter(file => file.getName().endsWith(".bak")).foreach(file => runMain(dbBuildClass, List(dbBuildName, file.getAbsolutePath()), fullClasspath))
+    } else {
+    	runMain(dbBuildClass, List(dbBuildName, dbBuildPath), fullClasspath);
+    }
   }
 
   private def runMain(mainClass:String, args:Seq[String], classpath:Seq[Attributed[File]]) = {
