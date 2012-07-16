@@ -6,7 +6,6 @@ import com.schantz.sbt.PluginKeys._
 
 object DBBuildPlugin extends Plugin {
   def dbBuildSettings = {
-
     Seq(
         dbBuild in Global <<= (dbBuildClass in Compile, dbBuildPath in Compile, fullClasspath in Compile) map dbBuildTask
     )
@@ -14,9 +13,9 @@ object DBBuildPlugin extends Plugin {
 
   private def dbBuildTask(dbBuildClass:String, dbBuildPath:String, fullClasspath:Seq[Attributed[File]]) = {
     var dbBuildName = System.getProperty("dbBuildName")
-    assert(dbBuildClass.nonEmpty, "DB build class not specified correctly: " + dbBuildClass)
-    assert(dbBuildName.nonEmpty, "DB build name not specified correctly: " + dbBuildName)
-    assert(dbBuildPath.nonEmpty, "DB build path not specified correctly: " + dbBuildPath)
+    assert(dbBuildClass != null && dbBuildClass.nonEmpty, "DB build class not specified correctly: " + dbBuildClass)
+    assert(dbBuildName != null && dbBuildName.nonEmpty, "DB build name not specified correctly: " + dbBuildName)
+    assert(dbBuildPath != null && dbBuildPath.nonEmpty, "DB build path not specified correctly: " + dbBuildPath)
 
     val f = file(dbBuildPath);
     if (f.isDirectory()) {
@@ -41,7 +40,11 @@ object DBBuildPlugin extends Plugin {
     cmd += " " + args.mkString(" ")
     print("RUN-MAIN\n" + cmd)
 
-    // TODO catch failed executions
-    cmd !;
+    val exitCode = cmd !;
+    exitCode match {
+      case 1  => {
+        throw new RuntimeException(mainClass+ " didn't execute successfully")
+      }
+    }
   }
 }
