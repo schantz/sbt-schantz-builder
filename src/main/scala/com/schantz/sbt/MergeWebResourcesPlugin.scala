@@ -14,13 +14,13 @@ object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
     warResourceDirectoriesTask ++
       // default settings
-      inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
+      inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil, warExcludedResources := Nil)) ++
       // configure web app
       warSettings ++ Seq(
         // TODO clear existing web app resources and search through project for src/main/webapp, war, webcontent
         webappResources in Compile <+= (baseDirectory in Runtime)(sd => sd / "war"),
-        warPostProcess in Compile <<= (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath in Compile) map {
-          (target, streams, warExcludedJars, warExcludedMetaInfResources, warResourceDirectories, unmanagedClasspath) =>
+        warPostProcess in Compile <<= (target, streams, warExcludedJars, warExcludedMetaInfResources, warExcludedResources, warResourceDirectories, unmanagedClasspath in Compile) map {
+          (target, streams, warExcludedJars, warExcludedMetaInfResources, warExcludedResources, warResourceDirectories, unmanagedClasspath) =>
             {
               () =>
                 val warPath = target / "webapp"
@@ -36,6 +36,15 @@ object MergeWebResourcesPlugin extends Plugin {
                 // remove unwanted meta-inf content
                 streams.log.info("Excluding content from meta-inf: " + warExcludedMetaInfResources)
                 warExcludedMetaInfResources.foreach(content => IO.delete(warPath / "META-INF" / content))
+
+                // remove unwanted files
+                streams.log.info("Excluding content from : " + warExcludedResources)
+                warExcludedResources.foreach(content => {
+                  streams.log.info("Deleting "+(warPath / content))
+                  IO.delete(warPath / content)
+                }
+                  
+                  )
 
                 // replace SBT resources in WEB-INF
                 (warPath / "WEB-INF").listFiles.foreach { file =>

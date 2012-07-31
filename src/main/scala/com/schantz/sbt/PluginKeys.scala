@@ -9,6 +9,7 @@ object PluginKeys {
   // war
   lazy val warExcludedJars = SettingKey[Seq[String]]("schantz-war-exclude-jars", "jars used for compile but not packaged") 
   lazy val warExcludedMetaInfResources = SettingKey[Seq[String]]("schantz-war-exclude-metainf", "resources excluded from war META-INF") 
+  lazy val warExcludedResources = SettingKey[Seq[String]]("schantz-war-exclude-resource", "resources excluded from war ") 
   lazy val warResourceDirectories = TaskKey[Seq[File]]("schantz-war-resource-directories", "Show web resource directories for dependent projects") 
 
   // ear
