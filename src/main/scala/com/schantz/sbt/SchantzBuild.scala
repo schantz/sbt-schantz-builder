@@ -8,6 +8,10 @@ import scala.xml._
 import com.schantz.sbt.PluginKeys._
 
 trait SchantzBuild extends Build {
+  val VERSION = "1.1"
+
+  println("Running Schantz build Version: "+VERSION)
+  
   override def projectDefinitions(baseDirectory: File) = {
     println("Project definitaions: " + baseDirectory.getAbsolutePath)
     val xmlFile = new File(baseDirectory, ".project")

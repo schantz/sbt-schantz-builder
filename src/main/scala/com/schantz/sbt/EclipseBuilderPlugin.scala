@@ -117,7 +117,7 @@ object EclipseBuilderPlugin extends Plugin {
       (e \\ "@kind").text == "src" && (pathText != "" && pathText.startsWith("/") && !pathText.endsWith(".jar"))
     }).map(e => {
       val searchText = (e \\ "@path").text.replaceFirst("/", "")
-      println("Trying to find: " + searchText)
+      debug("Trying to find: " + searchText)
       find(searchText, basedir)
     })
     debug("Project dependencies: " + sourceDirs.mkString("\n\t"))
@@ -141,7 +141,9 @@ object EclipseBuilderPlugin extends Plugin {
       debug("Searching: " + parentPath.getAbsolutePath)
       val found = searchDown(parentPath, name)
       found match {
-        case Some(x) => return Some(x)
+        case Some(x) => {
+          return Some(x) 
+        }
         case None => parentPath = new File(getParentDirectory(parentPath.getAbsolutePath))
       }
     }
@@ -150,7 +152,7 @@ object EclipseBuilderPlugin extends Plugin {
 
   def searchDown(aStartingDir: File, name: String): Option[File] = {
     var result = None
-    val filesAndDirs = aStartingDir.listFiles()
+    val filesAndDirs = aStartingDir.listFiles().filter(name => name.getName != ".metadata")
     for (file <- filesAndDirs) {
       if (file.getName == ".project") {
         val projectName = (XML.loadFile(file) \\ "projectDescription" \ "name").text
