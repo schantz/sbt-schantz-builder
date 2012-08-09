@@ -14,7 +14,8 @@ object MergeWebResourcesPlugin extends Plugin {
   def webSettings = {
     warResourceDirectoriesTask ++
       // default settings
-      inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil, warExcludedResources := Nil)) ++
+      inConfig(Compile)(Seq(warExcludedJars := Nil, warExcludedMetaInfResources := Nil)) ++
+      inConfig(Optional)(Seq(warExcludedResources := Nil)) ++
       // configure web app
       warSettings ++ Seq(
         // TODO clear existing web app resources and search through project for src/main/webapp, war, webcontent

@@ -8,7 +8,7 @@ import scala.xml._
 import com.schantz.sbt.PluginKeys._
 
 trait SchantzBuild extends Build {
-  val VERSION = "1.1"
+  val VERSION = "1.3"
 
   println("Running Schantz build Version: "+VERSION)
   

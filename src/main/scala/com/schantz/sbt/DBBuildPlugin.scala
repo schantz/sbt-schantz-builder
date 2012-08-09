@@ -42,7 +42,13 @@ object DBBuildPlugin extends Plugin {
 
     val exitCode = cmd !;
     exitCode match {
-      case 1  => {
+      case 0 => {
+          println("Java successfully executed")
+      }
+      case 1 => {
+        throw new RuntimeException(mainClass+ " didn't execute successfully")
+      }
+      case _ => {
         throw new RuntimeException(mainClass+ " didn't execute successfully")
       }
     }
